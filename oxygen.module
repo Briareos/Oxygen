@@ -1,0 +1,8 @@
+<?php
+
+/**
+ * Implements hook_boot().
+ */
+function oxygen_boot() {
+  xdebug_break();
+}
