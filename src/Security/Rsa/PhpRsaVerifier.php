@@ -1,179 +1,218 @@
 <?php
 
-class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerifierInterface {
-  /**
-   * @param string $public_key
-   *   Public key in base64-encoded format (with -----BEGIN PUBLIC KEY-----
-   *   header and footer).
-   * @param string $data
-   *   Data to verify.
-   * @param string $signature
-   *   Signature in base64-encoded format.
-   *
-   * @return boolean
-   */
-  public function verify($public_key, $data, $signature) {
-    $key = $this->extract_key($public_key);
-    list($modulus, $exponent) = $this->get_key_modulus_and_exponent($key);
+class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerifierInterface
+{
+    /**
+     * @inheritdoc
+     */
+    public function verify($publicKey, $data, $signature)
+    {
+        try {
+            $key = $this->extractKey($publicKey);
+            list($modulus, $exponent) = $this->getKeyModulusAndExponent($key);
 
-    return $this->dsa_match($modulus, $exponent, $data, $signature);
-  }
-
-  /**
-   * @param string $key Key in binary format.
-   *
-   * @return Oxygen_Math_BigInteger[]
-   *   Two elements, fist is modulus, second is exponent.
-   *
-   * @throws Exception
-   */
-  private function get_key_modulus_and_exponent($key) {
-    if (ord($this->str_shift($key)) !== 48) {
-      // verify that the first byte is ord(CRYPT_RSA_ASN1_SEQUENCE) === 48
-      throw new Exception('Not a valid key');
-    }
-    if ($this->get_key_length($key) !== strlen($key)) {
-      throw new Exception('Not a valid key length');
+            return $this->rsaMatch($modulus, $exponent, $data, $signature);
+        } catch (Exception $e) {
+            return false;
+        }
     }
 
-    if (ord($this->str_shift($key)) !== 48) {
-      throw new Exception('Not a valid key (got ASN1 integer)');
+    /**
+     * @param string $key Key in binary format.
+     *
+     * @return Oxygen_Math_BigInteger[]
+     *   Two elements, fist is modulus, second is exponent.
+     *
+     * @throws Exception
+     */
+    private function getKeyModulusAndExponent($key)
+    {
+        if (ord($this->strShift($key)) !== 48) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_SEQUENCE);
+        }
+        if ($this->extractNextKeySegmentLength($key) !== strlen($key)) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_INVALID_LENGTH);
+        }
+
+        if (ord($this->strShift($key)) !== 48) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_SEQUENCE);
+        }
+
+        $header = $this->strShift($key, $this->extractNextKeySegmentLength($key));
+        if (ord($this->strShift($header)) !== 6) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_OBJECT);
+        }
+
+        $headerLength = $this->extractNextKeySegmentLength($header);
+
+        if ($this->strShift($header, $headerLength) !== "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01") {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_UNSUPPORTED_ENCRYPTION);
+        }
+
+        // Skip over the BIT STRING / OCTET STRING tag.
+        $tag = ord($this->strShift($key));
+        // Skip over the BIT STRING / OCTET STRING length.
+        $this->extractNextKeySegmentLength($key);
+        if ($tag !== 3) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_BITSTRING);
+        }
+        // This part should be run only of $tag === 3; but let's try to be consistent with our keys.
+        // If the RSA_KEY_MISSING_ASN1_BITSTRING ever gets to end user, it should be removed and
+        // handled appropriately.
+        $this->strShift($key);
+        if (ord($this->strShift($key)) !== 48) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_SEQUENCE);
+        }
+
+        if ($this->extractNextKeySegmentLength($key) !== strlen($key)) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_INVALID_LENGTH);
+        }
+        if (ord($this->strShift($key)) !== 2) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MISSING_ASN1_INTEGER);
+        }
+
+        $rawModulus = $this->strShift($key, $this->extractNextKeySegmentLength($key));
+
+        if (strlen($rawModulus) === 1 && ord($rawModulus) <= 2) {
+            throw new Exception('Should not get here');
+        }
+        $modulus = new Oxygen_Math_BigInteger($rawModulus, 256);
+        $this->strShift($key);
+        $exponentLength = $this->extractNextKeySegmentLength($key);
+        $exponent = new Oxygen_Math_BigInteger($this->strShift($key, $exponentLength), 256);
+
+        return array($modulus, $exponent);
     }
 
-    $temp = $this->str_shift($key, $this->get_key_length($key));
-    if (ord($this->str_shift($temp)) !== 6) {
-      throw new Exception('Expected CRYPT_RSA_ASN1_OBJECT');
+    /**
+     * @param Oxygen_Math_BigInteger $modulus
+     * @param Oxygen_Math_BigInteger $exponent
+     * @param string                 $data
+     * @param string                 $rawSignature
+     *
+     * @return bool
+     * @throws Oxygen_Exception
+     */
+    private function rsaMatch(Oxygen_Math_BigInteger $modulus, Oxygen_Math_BigInteger $exponent, $data, $rawSignature)
+    {
+        $modulusLength = strlen($modulus->toBytes());
+        if ($modulusLength !== strlen($rawSignature)) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_SIGNATURE_SIZE_INVALID);
+        }
+
+        $signature = new Oxygen_Math_BigInteger($rawSignature, 256);
+        $m2 = $this->rsavp1($signature, $exponent, $modulus);
+        if (strlen($m2->toBytes()) > $modulusLength) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_MODULUS_SIZE_INVALID);
+        }
+        $em = str_pad($m2->toBytes(), $modulusLength, chr(0), STR_PAD_LEFT);
+        $em2 = $this->emsaPkcs1v15Encode($data, $modulusLength);
+
+        return Oxygen_Security_Util::hashEquals($em, $em2);
     }
 
-    $length = $this->get_key_length($temp);
+    /**
+     * @link http://tools.ietf.org/html/rfc3447#section-9.2
+     *
+     * @param string $m
+     * @param int    $emLength
+     *
+     * @return bool
+     * @throws \Exception
+     */
+    private function emsaPkcs1v15Encode($m, $emLength)
+    {
+        $h = sha1($m, true);
+        $t = pack('H*', '3021300906052b0e03021a05000414');
+        $t .= $h;
+        $tLen = strlen($t);
 
-    if ($this->str_shift($temp, $length) !== "\x2a\x86\x48\x86\xf7\x0d\x01\x01\x01") {
-      throw new Exception('Did not get RSA encryption.');
+        if ($emLength < $tLen + 11) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_ENCODED_SIZE_INVALID);
+        }
+
+        $ps = str_repeat(chr(255), $emLength - $tLen - 3);
+
+        $em = "\0\1$ps\0$t";
+
+        return $em;
     }
 
-    $tag = ord($this->str_shift($key)); // skip over the BIT STRING / OCTET STRING tag
-    $this->get_key_length($key); // skip over the BIT STRING / OCTET STRING length
-    if ($tag === 3) {
-      // Got CRYPT_RSA_ASN1_BITSTRING
-      $this->str_shift($key);
-    }
-    if (ord($this->str_shift($key)) !== 48) {
-      throw new Exception('Expected CRYPT_RSA_ASN1_SEQUENCE');
-    }
+    /**
+     * @link http://tools.ietf.org/html/rfc3447#section-5.2.2
+     *
+     * @param Oxygen_Math_BigInteger $signature
+     * @param Oxygen_Math_BigInteger $exponent
+     * @param Oxygen_Math_BigInteger $modulus
+     *
+     * @return Oxygen_Math_BigInteger
+     * @throws Oxygen_Exception
+     */
+    private function rsavp1(Oxygen_Math_BigInteger $signature, Oxygen_Math_BigInteger $exponent, Oxygen_Math_BigInteger $modulus)
+    {
+        $zero = new Oxygen_Math_BigInteger(0);
+        if ($signature->compare($zero) < 0 || $signature->compare($modulus) > 0) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_SIGNATURE_REPRESENTATIVE_OUT_OF_RANGE);
+        }
 
-    if ($this->get_key_length($key) !== strlen($key)) {
-      throw new Exception('Key length is not right');
-    }
-    if (ord($this->str_shift($key)) !== 2) {
-      throw new Exception('Did not get CRYPT_RSA_ASN1_INTEGER');
-    }
-
-    $newTemp = $this->str_shift($key, $this->get_key_length($key));
-
-    if (strlen($newTemp) === 1 && ord($newTemp) <= 2) {
-      throw new Exception('Should not get here');
-    }
-    $modulus = new Oxygen_Math_BigInteger($newTemp, 256);
-    $this->str_shift($key);
-    $exponent_length = $this->get_key_length($key);
-    $exponent        = new Oxygen_Math_BigInteger($this->str_shift($key, $exponent_length), 256);
-
-    return array($modulus, $exponent);
-  }
-
-  private function dsa_match(Oxygen_Math_BigInteger $modulus, Oxygen_Math_BigInteger $exponent, $data, $raw_signature) {
-    $modulus_length = strlen($modulus->toBytes());
-    if ($modulus_length !== strlen($raw_signature)) {
-      throw new Exception('Signature size is not good');
+        return $signature->modPow($exponent, $modulus);
     }
 
-    $signature = new Oxygen_Math_BigInteger($raw_signature, 256);
-    $m2        = $this->rsavp1($signature, $exponent, $modulus);
-    if (strlen($m2->toBytes()) > $modulus_length) {
-      throw new Exception('m2 is too large');
-    }
-    $em  = str_pad($m2->toBytes(), $modulus_length, chr(0), STR_PAD_LEFT);
-    $em2 = $this->emsaPkcs1v15Encode($data, $modulus_length);
+    /**
+     * @param string $key Key in base64-encoded format.
+     *
+     * @return string Key in binary format.
+     * @throws Oxygen_Exception
+     */
+    private function extractKey($key)
+    {
+        // Remove header and footer; -----BEGIN CERTIFICATE----- and -----END CERTIFICATE-----.
+        $key = preg_replace('{^-.*$}m', '', $key);
+        // Remove new lines.
+        $key = str_replace(array("\r", "\n", ' '), '', $key);
+        if (!preg_match('{^[a-zA-Z\d/+]*={0,2}$}', $key)) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_INVALID_FORMAT);
+        }
 
-    return $em === $em2;
-  }
-
-  /**
-   * @link http://tools.ietf.org/html/rfc3447#section-9.2
-   *
-   * @param $m
-   * @param $em_len
-   *
-   * @return bool
-   * @throws \Exception
-   */
-  private function emsaPkcs1v15Encode($m, $em_len) {
-    $h = sha1($m, TRUE);
-    $t = pack('H*', '3021300906052b0e03021a05000414');
-    $t .= $h;
-    $tLen = strlen($t);
-
-    if ($em_len < $tLen + 11) {
-      throw new Exception('Intended encoded message length too short');
+        return base64_decode($key);
     }
 
-    $ps = str_repeat(chr(255), $em_len - $tLen - 3);
+    /**
+     * Same as array_shift(), modifies the string by reference.
+     *
+     * @param string $string
+     * @param int    $length How many characters to shift.
+     *
+     * @return string The substring that was shifted.
+     * @throws Oxygen_Exception
+     */
+    private function strShift(&$string, $length = 1)
+    {
+        if (strlen($string) < $length || !$length) {
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_INVALID_LENGTH);
+        }
 
-    $em = "\0\1$ps\0$t";
+        $subString = substr($string, 0, $length);
+        $string = substr($string, $length);
 
-    return $em;
-  }
-
-  /**
-   * @link http://tools.ietf.org/html/rfc3447#section-5.2.2
-   *
-   * @param Oxygen_Math_BigInteger $signature
-   * @param Oxygen_Math_BigInteger $exponent
-   * @param Oxygen_Math_BigInteger $modulus
-   *
-   * @return Oxygen_Math_BigInteger
-   * @throws Exception
-   */
-  private function rsavp1(Oxygen_Math_BigInteger $signature, Oxygen_Math_BigInteger $exponent, Oxygen_Math_BigInteger $modulus) {
-    $zero = new Oxygen_Math_BigInteger(0);
-    if ($signature->compare($zero) < 0 || $signature->compare($modulus) > 0) {
-      throw new Exception('Signature representative out of range');
+        return $subString;
     }
 
-    return $signature->modPow($exponent, $modulus);
-  }
+    /**
+     * @param string $key Key in binary format. The key is modified afterwards.
+     *
+     * @return int
+     */
+    private function extractNextKeySegmentLength(&$key)
+    {
+        $length = ord($this->strShift($key));
+        if ($length & 0x80) {
+            // Definite length, long form.
+            $length &= 0x7F;
+            $temp = $this->strShift($key, $length);
+            list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
+        }
 
-  private function extract_key($key) {
-    // The key may be prefixed with
-    // Bag Attributes
-    //     localKeyID: 00 00 00 00
-    // Remove that header, -----BEGIN CERTIFICATE----- and -----END CERTIFICATE-----.
-    $key = preg_replace('#.*?^-+[^-]+-+#ms', '', $key, 1);
-    $key = preg_replace('#-+[^-]+-+#', '', $key);
-    // Remove new lines.
-    $key = str_replace(array("\r", "\n", ' '), '', $key);
-    if (!preg_match('#^[a-zA-Z\d/+]*={0,2}$#', $key)) {
-      throw new Exception('The key format is not valid.');
+        return $length;
     }
-
-    return base64_decode($key);
-  }
-
-  private function str_shift(&$string, $length = 1) {
-    $substr = substr($string, 0, $length);
-    $string = substr($string, $length);
-
-    return $substr;
-  }
-
-  private function get_key_length(&$key) {
-    $length = ord($this->str_shift($key));
-    if ($length & 0x80) { // definite length, long form
-      $length &= 0x7F;
-      $temp = $this->str_shift($key, $length);
-      list(, $length) = unpack('N', substr(str_pad($temp, 4, chr(0), STR_PAD_LEFT), -4));
-    }
-
-    return $length;
-  }
 }

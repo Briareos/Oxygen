@@ -3,9 +3,10 @@
 /**
  * Implements hook_install().
  */
-function oxygen_install() {
-  db_update('system')
-    ->fields(array('weight' => -999))
-    ->condition('name', '[your_module_name]', '=')
-    ->execute();
+function oxygen_install()
+{
+    db_update('system')
+        ->fields(array('weight' => -999))
+        ->condition('name', 'oxygen', '=')
+        ->execute();
 }

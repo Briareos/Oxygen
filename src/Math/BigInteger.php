@@ -183,32 +183,27 @@ class Oxygen_Math_BigInteger
    * Holds the BigInteger's value.
    *
    * @var Array
-   * @access private
    */
-  var $value;
+  private $value;
 
   /**
    * Holds the BigInteger's magnitude.
    *
    * @var Boolean
-   * @access private
    */
-  var $is_negative = false;
+  private $is_negative = false;
 
   /**
    * Random number generator function
-   *
-   * @access private
    */
-  var $generator = 'mt_rand';
+  private $generator = 'mt_rand';
 
   /**
    * Precision
    *
    * @see setPrecision()
-   * @access private
    */
-  var $precision = -1;
+  private $precision = -1;
 
   /**
    * Precision Bitmask
@@ -216,23 +211,10 @@ class Oxygen_Math_BigInteger
    * @var Oxygen_Math_BigInteger|false
    *
    * @see setPrecision()
-   * @access private
    */
-  var $bitmask = false;
+  private $bitmask = false;
 
-  /**
-   * Mode independent value used for serialization.
-   *
-   * If the bcmath or gmp extensions are installed $this->value will be a non-serializable resource, hence the need for
-   * a variable that'll be serializable regardless of whether or not extensions are being used.  Unlike $this->value,
-   * however, $this->hex is only calculated when $this->__sleep() is called.
-   *
-   * @see __sleep()
-   * @see __wakeup()
-   * @var String
-   * @access private
-   */
-  var $hex;
+  static $mode;
 
   /**
    * Converts base-2, base-10, base-16, and binary strings (base-256) to BigIntegers.
@@ -255,24 +237,20 @@ class Oxygen_Math_BigInteger
    */
   public function __construct($x = 0, $base = 10)
   {
-    if (!defined('MATH_BIGINTEGER_MODE')) {
+    if (self::$mode === null) {
       switch (true) {
         case extension_loaded('gmp'):
-          define('MATH_BIGINTEGER_MODE', self::MODE_GMP);
+          self::$mode = self::MODE_GMP;
           break;
         case extension_loaded('bcmath'):
-          define('MATH_BIGINTEGER_MODE', self::MODE_BCMATH);
+          self::$mode = self::MODE_BCMATH;
           break;
         default:
-          define('MATH_BIGINTEGER_MODE', self::MODE_INTERNAL);
+          self::$mode = self::MODE_INTERNAL;
       }
     }
 
-    if (!defined('PHP_INT_SIZE')) {
-      define('PHP_INT_SIZE', 4);
-    }
-
-    if (empty(self::$base) && MATH_BIGINTEGER_MODE == self::MODE_INTERNAL) {
+    if (empty(self::$base) && self::$mode == self::MODE_INTERNAL) {
       switch (PHP_INT_SIZE) {
         case 8: // use 64-bit integers if int size is 8 bytes
           self::$base      = 31;
@@ -296,7 +274,7 @@ class Oxygen_Math_BigInteger
       }
     }
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         switch (true) {
           case is_resource($x) && get_resource_type($x) == 'GMP integer':
@@ -328,7 +306,7 @@ class Oxygen_Math_BigInteger
           $this->is_negative = true;
         }
       case 256:
-        switch (MATH_BIGINTEGER_MODE) {
+        switch (self::$mode) {
           case self::MODE_GMP:
             $sign = $this->is_negative ? '-' : '';
             $this->value = gmp_init($sign . '0x' . bin2hex($x));
@@ -357,7 +335,7 @@ class Oxygen_Math_BigInteger
         }
 
         if ($this->is_negative) {
-          if (MATH_BIGINTEGER_MODE != self::MODE_INTERNAL) {
+          if (self::$mode != self::MODE_INTERNAL) {
             $this->is_negative = false;
           }
           $temp = $this->add(new self('-1'));
@@ -379,7 +357,7 @@ class Oxygen_Math_BigInteger
           $x = bin2hex(~pack('H*', $x));
         }
 
-        switch (MATH_BIGINTEGER_MODE) {
+        switch (self::$mode) {
           case self::MODE_GMP:
             $temp = $this->is_negative ? '-0x' . $x : '0x' . $x;
             $this->value = gmp_init($temp);
@@ -409,7 +387,7 @@ class Oxygen_Math_BigInteger
         // [^-0-9].*: find any non-numeric characters and then any characters that follow that
         $x = preg_replace('#(?<!^)(?:-).*|(?<=^|-)0*|[^-0-9].*#', '', $x);
 
-        switch (MATH_BIGINTEGER_MODE) {
+        switch (self::$mode) {
           case self::MODE_GMP:
             $this->value = gmp_init($x);
             break;
@@ -514,7 +492,7 @@ class Oxygen_Math_BigInteger
       return $comparison < 0 ? ~$bytes : $bytes;
     }
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         if (gmp_cmp($this->value, gmp_init(0)) == 0) {
           return $this->precision > 0 ? str_repeat(chr(0), ($this->precision + 1) >> 3) : '';
@@ -629,7 +607,7 @@ class Oxygen_Math_BigInteger
    */
   function add($y)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_add($this->value, $y->value);
@@ -758,7 +736,7 @@ class Oxygen_Math_BigInteger
    */
   function subtract($y)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_sub($this->value, $y->value);
@@ -892,7 +870,7 @@ class Oxygen_Math_BigInteger
    */
   function multiply($x)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_mul($this->value, $x->value);
@@ -1177,7 +1155,7 @@ class Oxygen_Math_BigInteger
    */
   function divide($y)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $quotient = new self();
         $remainder = new self();
@@ -1426,7 +1404,7 @@ class Oxygen_Math_BigInteger
       return $this->_normalize($temp->modPow($e, $n));
     }
 
-    if (MATH_BIGINTEGER_MODE == self::MODE_GMP) {
+    if (self::$mode == self::MODE_GMP) {
       $temp = new self();
       $temp->value = gmp_powm($this->value, $e->value, $n->value);
 
@@ -1439,7 +1417,7 @@ class Oxygen_Math_BigInteger
       return $temp->modPow($e, $n);
     }
 
-    if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
+    if (self::$mode == self::MODE_BCMATH) {
       $temp = new self();
       $temp->value = bcpowmod($this->value, $e->value, $n->value, 0);
 
@@ -2079,7 +2057,7 @@ class Oxygen_Math_BigInteger
    */
   function modInverse($n)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_invert($this->value, $n->value);
@@ -2144,7 +2122,7 @@ class Oxygen_Math_BigInteger
    */
   function extendedGCD($n)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         extract(gmp_gcdext($this->value, $n->value));
         /** @var Oxygen_Math_BigInteger $g */
@@ -2263,7 +2241,7 @@ class Oxygen_Math_BigInteger
   {
     $temp = new self();
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp->value = gmp_abs($this->value);
         break;
@@ -2296,7 +2274,7 @@ class Oxygen_Math_BigInteger
    */
   public function compare($y)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         return gmp_cmp($this->value, $y->value);
       case self::MODE_BCMATH:
@@ -2354,7 +2332,7 @@ class Oxygen_Math_BigInteger
    */
   function equals($x)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         return gmp_cmp($this->value, $x->value) == 0;
       default:
@@ -2374,7 +2352,7 @@ class Oxygen_Math_BigInteger
   function setPrecision($bits)
   {
     $this->precision = $bits;
-    if (MATH_BIGINTEGER_MODE != self::MODE_BCMATH) {
+    if (self::$mode != self::MODE_BCMATH) {
       $this->bitmask = new self(chr((1 << ($bits & 0x7)) - 1) . str_repeat(chr(0xFF), $bits >> 3), 256);
     } else {
       $this->bitmask = new self(bcpow('2', $bits, 0));
@@ -2394,7 +2372,7 @@ class Oxygen_Math_BigInteger
    */
   function bitwise_and($x)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_and($this->value, $x->value);
@@ -2435,7 +2413,7 @@ class Oxygen_Math_BigInteger
    */
   function bitwise_or($x)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_or($this->value, $x->value);
@@ -2475,7 +2453,7 @@ class Oxygen_Math_BigInteger
    */
   function bitwise_xor($x)
   {
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         $temp = new self();
         $temp->value = gmp_xor($this->value, $x->value);
@@ -2555,7 +2533,7 @@ class Oxygen_Math_BigInteger
   {
     $temp = new self();
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         static $two;
 
@@ -2593,7 +2571,7 @@ class Oxygen_Math_BigInteger
   {
     $temp = new self();
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         static $two;
 
@@ -2632,7 +2610,7 @@ class Oxygen_Math_BigInteger
 
     if ($this->precision > 0) {
       $precision = $this->precision;
-      if (MATH_BIGINTEGER_MODE == self::MODE_BCMATH) {
+      if (self::$mode == self::MODE_BCMATH) {
         $mask = $this->bitmask->subtract(new self(1));
         $mask = $mask->toBytes();
       } else {
@@ -2658,7 +2636,7 @@ class Oxygen_Math_BigInteger
     $left = $this->bitwise_leftShift($shift);
     $left = $left->bitwise_and(new self($mask, 256));
     $right = $this->bitwise_rightShift($precision - $shift);
-    $result = MATH_BIGINTEGER_MODE != self::MODE_BCMATH ? $left->bitwise_or($right) : $left->add($right);
+    $result = self::$mode != self::MODE_BCMATH ? $left->bitwise_or($right) : $left->add($right);
     return $this->_normalize($result);
   }
 
@@ -2760,7 +2738,7 @@ class Oxygen_Math_BigInteger
     $result->precision = $this->precision;
     $result->bitmask = $this->bitmask;
 
-    switch (MATH_BIGINTEGER_MODE) {
+    switch (self::$mode) {
       case self::MODE_GMP:
         if (!empty($result->bitmask->value)) {
           $result->value = gmp_and($result->value, $result->bitmask->value);
