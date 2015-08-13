@@ -1,6 +1,8 @@
 <?php
 
-class Oxygen_Security_Rsa_RsaVerifierTest extends PHPUnit_Framework_TestCase
+namespace Oxygen\Tests\Security\Rsa;
+
+class RsaVerifierTest extends \PHPUnit_Framework_TestCase
 {
     const MESSAGE = 'This is a unverified message that must be signed.';
 
@@ -20,15 +22,15 @@ class Oxygen_Security_Rsa_RsaVerifierTest extends PHPUnit_Framework_TestCase
     public function signerProvider()
     {
         return array(
-            array(new Oxygen_Security_Rsa_OpensslRsaVerifier()),
-            array(new Oxygen_Security_Rsa_PhpRsaVerifier()),
+            array(new \Oxygen_Security_Rsa_OpensslRsaVerifier()),
+            array(new \Oxygen_Security_Rsa_PhpRsaVerifier()),
         );
     }
 
     /**
      * @dataProvider signerProvider
      */
-    public function testVerifierVerifiesSignature(Oxygen_Security_Rsa_RsaVerifierInterface $verifier)
+    public function testVerifierVerifiesSignature(\Oxygen_Security_Rsa_RsaVerifierInterface $verifier)
     {
         $data = self::MESSAGE;
 

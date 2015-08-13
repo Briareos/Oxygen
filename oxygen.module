@@ -3,6 +3,13 @@
 /**
  * Implements hook_boot().
  */
-function oxygen_boot() {
-  xdebug_break();
+function oxygen_boot()
+{
+    $kernel = new Oxygen_Kernel();
+    $request = Oxygen_Http_Request::createFromGlobals();
+    $kernel->handle($request, 'oxygen_send_response');
+}
+
+function oxygen_send_response() {
+
 }

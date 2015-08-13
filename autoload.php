@@ -1,5 +1,12 @@
 <?php
 
+/**
+ * Autoloader file for the module.
+ */
+
+/**
+ * @param string $class
+ */
 function oxygen_autoload($class)
 {
     static $srcDirectory;

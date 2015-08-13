@@ -1,0 +1,39 @@
+#!/usr/bin/env php
+<?php
+
+if (PHP_SAPI !== 'cli') {
+    print "This file must be run from the CLI";
+    exit(1);
+}
+
+$autoload = __DIR__.'/vendor/autoload.php';
+
+if (!file_exists($autoload)) {
+    print <<<EOF
+To use the console you must first install dependencies with "composer install" command
+Download composer at https://getcomposer.org/download/
+EOF;
+    exit(1);
+}
+
+set_time_limit(0);
+/** @noinspection PhpIncludeInspection */
+require_once $autoload;
+
+use Oxygen\Dev\Command\VendorCommand;
+use Oxygen\Dev\Command\ShellCommand;
+use Symfony\Component\Console\Application;
+use Symfony\Component\Console\Input\ArgvInput;
+
+//use MWPDev\Command\InstallWordPressCommand;
+
+$input = new ArgvInput();
+$env = $input->getParameterOption(array('--env', '-e'), getenv('MWP_ENV') ?: 'dev');
+$debug = getenv('MWP_DEBUG') !== '0' && !$input->hasParameterOption(array('--no-debug', '')) && $env !== 'prod';
+
+$version = parse_ini_file(__DIR__.'/oxygen.info')['version'];
+
+$application = new Application('Oxygen console', trim(explode("\n", $version, 2)[0]));
+$application->add(new VendorCommand());
+$application->add(new ShellCommand());
+$application->run($input);
