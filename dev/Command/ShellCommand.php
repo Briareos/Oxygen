@@ -18,7 +18,12 @@ class ShellCommand extends Command
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        require_once __DIR__.'/../../autoload.php';
+        // Prevent PHP notice.
+        $_SERVER['REMOTE_ADDR'] = '127.0.0.1';
+        define('DRUPAL_ROOT', __DIR__.'/../../../../../..');
+
+        require_once DRUPAL_ROOT.'/includes/bootstrap.inc';
+        drupal_bootstrap(DRUPAL_BOOTSTRAP_FULL);
 
         $this->getApplication()->setCatchExceptions(false);
         $boris = new Boris();

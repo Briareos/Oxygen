@@ -1,6 +1,34 @@
 <?php
 
 /**
+ * Implements hook_schema().
+ */
+function oxygen_schema()
+{
+    $schema['oxygen_nonce'] = array(
+        'description' => 'Stores cryptographic nonce used by the Oxygen module to prevent man-in-the-middle attack.',
+        'fields'      => array(
+            'nonce'   => array(
+                'description' => 'The nonce value.',
+                'type'        => 'varchar',
+                'length'      => 32,
+                'not null'    => true,
+                'default'     => '',
+            ),
+            'expires' => array(
+                'description' => 'The Unix timestamp when the nonce should expire. Once it expires, it can be safely deleted from the database.',
+                'type'        => 'int',
+                'not null'    => true,
+                'default'     => 0,
+            ),
+        ),
+        'primary key' => array('nonce'),
+    );
+
+    return $schema;
+}
+
+/**
  * Implements hook_install().
  */
 function oxygen_install()
@@ -9,4 +37,12 @@ function oxygen_install()
         ->fields(array('weight' => -999))
         ->condition('name', 'oxygen', '=')
         ->execute();
+}
+
+/**
+ * Implements hook_uninstall().
+ */
+function oxygen_uninstall()
+{
+    variable_del('oxygen_public_key');
 }

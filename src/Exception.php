@@ -44,7 +44,28 @@ class Oxygen_Exception extends Exception
     const RSA_KEY_SIGNATURE_SIZE_INVALID = 10012;
 
     const RSA_KEY_MODULUS_SIZE_INVALID = 10013;
+
     const RSA_KEY_ENCODED_SIZE_INVALID = 10014;
+
+    const ACTION_NOT_FOUND = 10015;
+
+    const NONCE_FORMAT_INVALID = 10016;
+
+    const NONCE_EXPIRED = 10017;
+
+    const NONCE_ALREADY_USED = 10018;
+
+    const HANDSHAKE_PUBLIC_KEY_NOT_PROVIDED = 10019;
+
+    const HANDSHAKE_SIGNATURE_NOT_PROVIDED = 10020;
+
+    const HANDSHAKE_NONCE_NOT_PROVIDED = 10021;
+
+    const HANDSHAKE_VERIFY_TEST_FAILED = 10022;
+
+    const HANDSHAKE_VERIFY_FAILED = 10023;
+
+    const ACTION_ARGUMENT_EMPTY = 10024;
 
     /**
      * List of constants defined in this class.
