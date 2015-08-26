@@ -17,15 +17,29 @@ class Oxygen_EventListener_HandshakeListener
     private $nonceManager;
 
     /**
+     * @var string
+     */
+    private $baseUrl;
+
+    /**
+     * @var string
+     */
+    private $modulePath;
+
+    /**
      * @param Oxygen_Drupal_StateInterface                $state
      * @param Oxygen_Security_Rsa_RsaVerifierInterface    $rsaVerifier
      * @param Oxygen_Security_Nonce_NonceManagerInterface $nonceManager
+     * @param string                                      $baseUrl
+     * @param string                                      $modulePath
      */
-    public function __construct(Oxygen_Drupal_StateInterface $state, Oxygen_Security_Rsa_RsaVerifierInterface $rsaVerifier, Oxygen_Security_Nonce_NonceManagerInterface $nonceManager)
+    public function __construct(Oxygen_Drupal_StateInterface $state, Oxygen_Security_Rsa_RsaVerifierInterface $rsaVerifier, Oxygen_Security_Nonce_NonceManagerInterface $nonceManager, $baseUrl, $modulePath)
     {
-        $this->state       = $state;
-        $this->rsaVerifier = $rsaVerifier;
+        $this->state        = $state;
+        $this->rsaVerifier  = $rsaVerifier;
         $this->nonceManager = $nonceManager;
+        $this->baseUrl      = $baseUrl;
+        $this->modulePath   = $modulePath;
     }
 
     public function onMasterRequest(Oxygen_Event_MasterRequestEvent $event)
@@ -33,23 +47,9 @@ class Oxygen_EventListener_HandshakeListener
         $data              = $event->getData();
         $existingPublicKey = $this->state->get('oxygen_public_key');
 
-        if (empty($data['publicKey'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_PUBLIC_KEY_NOT_PROVIDED);
-        }
-
         $providedPublicKey = $data['publicKey'];
-
-        if (empty($data['signature'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_SIGNATURE_NOT_PROVIDED);
-        }
-
-        $signature = $data['signature'];
-
-        if (empty($data['nonce'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_NONCE_NOT_PROVIDED);
-        }
-
-        $nonce = $data['nonce'];
+        $signature         = $data['signature'];
+        $nonce             = $data['nonce'];
 
         if (empty($existingPublicKey)) {
             // There is no public key set, use the provided one to verify SSL implementation.
@@ -69,10 +69,31 @@ class Oxygen_EventListener_HandshakeListener
             }
         }
 
-        $this->nonceManager->useNonce($nonce);
-
-        if (empty($existingPublicKey)) {
-            $this->state->set('oxygen_public_key', $providedPublicKey);
+        if (!empty($existingPublicKey)) {
+            // We validated against an existing key.
+            $this->nonceManager->useNonce($nonce);
+            return;
         }
+
+        $handshakeKey = @file_get_contents($this->modulePath.'/keys/'.$data['handshakeKey'].'.key');
+
+        if ($handshakeKey === false) {
+            $lastError = error_get_last();
+            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_KEY_NOT_FOUND, null, array(
+                'lastError' => $lastError['message'],
+                'keyPath'   => $this->modulePath.'/'.$data['handshakeKey'],
+            ));
+        }
+
+        $urlSlug = Oxygen_Util::getUrlSlug($this->baseUrl);
+
+        $verifiedHandshake = $this->rsaVerifier->verify($handshakeKey, $urlSlug, $data['handshakeSignature']);
+
+        if (!$verifiedHandshake) {
+            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_VERIFY_FAILED);
+        }
+
+        $this->nonceManager->useNonce($nonce);
+        $this->state->set('oxygen_public_key', $providedPublicKey);
     }
 }

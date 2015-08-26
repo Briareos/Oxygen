@@ -7,7 +7,7 @@ require_once dirname(__FILE__).'/autoload.php';
  */
 function oxygen_boot()
 {
-    $kernel = new Oxygen_Kernel(oxygen_container());
+    $kernel  = new Oxygen_Kernel(oxygen_container());
     $request = Oxygen_Http_Request::createFromGlobals();
     $kernel->handle($request);
 }
@@ -15,14 +15,19 @@ function oxygen_boot()
 /**
  * Get the service container singleton.
  *
- * @return Oxygen_Container_Production
+ * @return Oxygen_Container_Interface
  */
 function oxygen_container()
 {
     static $container;
+    global $base_url;
 
     if ($container === null) {
-        $container = new Oxygen_Container_Production();
+        $container = new Oxygen_Container_Production(array(
+            'module_version' => '1.0',
+            'module_path'    => dirname(__FILE__),
+            'base_url'       => $base_url,
+        ));
     }
 
     return $container;

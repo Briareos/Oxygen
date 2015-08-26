@@ -29,7 +29,7 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
     {
         $registry = new Oxygen_Action_Registry();
 
-        $registry->setDefinition('ping', new Oxygen_Action_Definition('Oxygen_Action_PingAction','execute'));
+        $registry->setDefinition('ping', new Oxygen_Action_Definition('Oxygen_Action_PingAction', 'execute'));
 
         return $registry;
     }
@@ -44,13 +44,28 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
 
         $dispatcher = new Oxygen_EventDispatcher_EventDispatcher();
 
+        $protocolListener = new Oxygen_Container_LazyService(
+            'Oxygen_EventListener_ProtocolListener',
+            $this->getParameter('module_version'),
+            $this->getParameter('base_url')
+        );
+        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($protocolListener, 'onMasterRequest'), 10);
+
         $handshakeListener = new Oxygen_Container_LazyService(
             'Oxygen_EventListener_HandshakeListener',
             array($this, 'getState'),
             array($this, 'getRsaVerifier'),
-            array($this, 'getNonceManager')
+            array($this, 'getNonceManager'),
+            $this->getParameter('base_url'),
+            $this->getParameter('module_path')
         );
-        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($handshakeListener, 'onMasterRequest'));
+        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($handshakeListener, 'onMasterRequest'), 9);
+
+        $actionListener = new Oxygen_Container_LazyService(
+            'Oxygen_EventListener_ActionListener',
+            array($this, 'getActionRegistry')
+        );
+        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($actionListener, 'onMasterRequest'), 7);
 
         return $dispatcher;
     }

@@ -48,24 +48,38 @@ class Oxygen_Exception extends Exception
     const RSA_KEY_ENCODED_SIZE_INVALID = 10014;
 
     const ACTION_NOT_FOUND = 10015;
-
-    const NONCE_FORMAT_INVALID = 10016;
+    const ACTION_ARGUMENT_EMPTY = 10024;
 
     const NONCE_EXPIRED = 10017;
-
     const NONCE_ALREADY_USED = 10018;
 
-    const HANDSHAKE_PUBLIC_KEY_NOT_PROVIDED = 10019;
-
-    const HANDSHAKE_SIGNATURE_NOT_PROVIDED = 10020;
-
-    const HANDSHAKE_NONCE_NOT_PROVIDED = 10021;
-
     const HANDSHAKE_VERIFY_TEST_FAILED = 10022;
-
     const HANDSHAKE_VERIFY_FAILED = 10023;
+    const HANDSHAKE_LOCAL_KEY_NOT_FOUND = 10042;
+    const HANDSHAKE_LOCAL_VERIFY_FAILED = 10043;
 
-    const ACTION_ARGUMENT_EMPTY = 10024;
+    const PROTOCOL_PUBLIC_KEY_NOT_PROVIDED = 10019;
+    const PROTOCOL_PUBLIC_KEY_NOT_VALID = 10025;
+    const PROTOCOL_SIGNATURE_NOT_VALID = 10026;
+    const PROTOCOL_SIGNATURE_NOT_PROVIDED = 10020;
+    const PROTOCOL_NONCE_NOT_PROVIDED = 10021;
+    const PROTOCOL_NONCE_NOT_VALID = 10027;
+    const PROTOCOL_ACTION_NAME_NOT_PROVIDED = 10030;
+    const PROTOCOL_ACTION_NAME_NOT_VALID = 10031;
+    const PROTOCOL_ACTION_PARAMETERS_NOT_PROVIDED = 10032;
+    const PROTOCOL_ACTION_PARAMETERS_NOT_VALID = 10033;
+    const PROTOCOL_REQUIRED_VERSION_NOT_PROVIDED = 10028;
+    const PROTOCOL_REQUIRED_VERSION_NOT_VALID = 10029;
+    const PROTOCOL_VERSION_TOO_LOW = 10034;
+    const PROTOCOL_HANDSHAKE_KEY_NOT_PROVIDED = 10035;
+    const PROTOCOL_HANDSHAKE_KEY_NOT_VALID = 10036;
+    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_PROVIDED = 10037;
+    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_VALID = 10038;
+    const PROTOCOL_BASE_URL_NOT_PROVIDED = 10039;
+    const PROTOCOL_BASE_URL_NOT_VALID = 10040;
+    const PROTOCOL_BASE_URL_SLUG_MISMATCHES = 10041;
+    const PROTOCOL_REQUEST_ID_NOT_PROVIDED = 10042;
+    const PROTOCOL_REQUEST_ID_NOT_VALID = 10043;
 
     /**
      * List of constants defined in this class.
@@ -96,7 +110,7 @@ class Oxygen_Exception extends Exception
     public function __construct($code, $message = null, array $context = array(), Exception $previous = null)
     {
         $this->errorName = $this->getErrorNameForCode($code);
-        $this->context = $context;
+        $this->context   = $context;
 
         if ($message === null) {
             $message = sprintf('Error [%d]: %s', $code, $this->errorName);
@@ -115,7 +129,7 @@ class Oxygen_Exception extends Exception
     {
         if (count(self::$codes) === 0) {
             $reflectionClass = new ReflectionClass(__CLASS__);
-            self::$codes = array_flip($reflectionClass->getConstants());
+            self::$codes     = array_flip($reflectionClass->getConstants());
         }
 
         if (array_key_exists($code, self::$codes)) {

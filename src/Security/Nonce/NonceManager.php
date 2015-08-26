@@ -20,14 +20,6 @@ class Oxygen_Security_Nonce_NonceManager implements Oxygen_Security_Nonce_NonceM
      */
     public function useNonce($nonce)
     {
-        if (!is_string($nonce)) {
-            throw new Oxygen_Exception(Oxygen_Exception::NONCE_FORMAT_INVALID);
-        }
-
-        if (!preg_match('{^[a-z0-9]{32}_\d+$}', $nonce)) {
-            throw new Oxygen_Exception(Oxygen_Exception::NONCE_FORMAT_INVALID);
-        }
-
         list($nonceValue, $expiresAt) = explode('_', $nonce);
 
         $expiresAt = (int)$expiresAt;

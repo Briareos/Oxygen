@@ -43,7 +43,7 @@ class Oxygen_Kernel
                 }
                 $masterRequestEvent = new Oxygen_Event_MasterRequestEvent($request, $data);
                 $dispatcher->dispatch(Oxygen_Event_Events::MASTER_REQUEST, $masterRequestEvent);
-                if ($masterRequestEvent->hasResponse()) {
+                if (!$masterRequestEvent->hasResponse()) {
                     throw new RuntimeException('The response was not set after an action call.');
                 }
                 call_user_func($callback, $masterRequestEvent->getResponse());

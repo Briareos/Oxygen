@@ -11,7 +11,7 @@ class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerif
             $key = $this->extractKey($publicKey);
             list($modulus, $exponent) = $this->getKeyModulusAndExponent($key);
 
-            return $this->rsaMatch($modulus, $exponent, $data, $signature);
+            return $this->rsaMatch($modulus, $exponent, $data, base64_decode($signature));
         } catch (Exception $e) {
             return false;
         }
@@ -108,7 +108,7 @@ class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerif
         $em = str_pad($m2->toBytes(), $modulusLength, chr(0), STR_PAD_LEFT);
         $em2 = $this->emsaPkcs1v15Encode($data, $modulusLength);
 
-        return Oxygen_Security_Util::hashEquals($em, $em2);
+        return Oxygen_Util::hashEquals($em, $em2);
     }
 
     /**
@@ -170,7 +170,7 @@ class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerif
         $key = preg_replace('{^-.*$}m', '', $key);
         // Remove new lines.
         $key = str_replace(array("\r", "\n", ' '), '', $key);
-        if (!preg_match('{^[a-zA-Z\d/+]*={0,2}$}', $key)) {
+        if (!preg_match('{^[a-zA-Z\d/+]+={0,2}$}', $key)) {
             throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_INVALID_FORMAT);
         }
 

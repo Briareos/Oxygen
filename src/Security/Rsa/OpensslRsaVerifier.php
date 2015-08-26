@@ -8,7 +8,7 @@ class Oxygen_Security_Rsa_OpensslRsaVerifier implements Oxygen_Security_Rsa_RsaV
     public function verify($publicKey, $data, $signature)
     {
         /** @handled function */
-        $verify = @openssl_verify($data, $signature, $publicKey);
+        $verify = @openssl_verify($data, base64_decode($signature), $publicKey);
 
         if ($verify === -1) {
             $error     = $errorRow = '';

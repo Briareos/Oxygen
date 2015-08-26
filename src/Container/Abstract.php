@@ -15,6 +15,9 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
     public function __construct(array $parameters = array())
     {
         $this->parameters = $parameters + array(
+                'module_version'  => '0.0',
+                'module_path'     => dirname(dirname(dirname(__FILE__))),
+                'base_url'        => 'http://.',
                 'disable_openssl' => false,
             );
     }

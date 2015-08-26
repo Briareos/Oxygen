@@ -19,10 +19,6 @@ class Oxygen_EventListener_ActionListener
     {
         $data = $event->getData();
 
-        if (!isset($data['actionName']) || !isset($data['actionParameters'])) {
-            return;
-        }
-
         $actionDefinition = $this->actionRegistry->getDefinition($data['actionName']);
         $reflectionMethod = new ReflectionMethod($actionDefinition->getClass(), $actionDefinition->getMethod());
         $parameters       = $reflectionMethod->getParameters();
@@ -40,6 +36,9 @@ class Oxygen_EventListener_ActionListener
         }
 
         $result = call_user_func_array(array($actionDefinition->getClass(), $actionDefinition->getMethod()), $arguments);
-        $event->setResponse(new Oxygen_Http_JsonResponse(array('actionResult' => $result)));
+        $event->setResponse(new Oxygen_Http_JsonResponse(array(
+            'oxygenResponseId' => $data['oxygenRequestId'],
+            'actionResult'     => $result,
+        )));
     }
 }
