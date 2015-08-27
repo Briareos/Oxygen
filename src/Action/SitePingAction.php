@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Action_PingAction
+class Oxygen_Action_SitePingAction
 {
     public function execute()
     {

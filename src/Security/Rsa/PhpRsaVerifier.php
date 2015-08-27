@@ -3,7 +3,7 @@
 class Oxygen_Security_Rsa_PhpRsaVerifier implements Oxygen_Security_Rsa_RsaVerifierInterface
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     public function verify($publicKey, $data, $signature)
     {

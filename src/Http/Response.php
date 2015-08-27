@@ -95,9 +95,9 @@ class Oxygen_Http_Response
 
     public function __construct($content, $statusCode = 200, array $headers = array())
     {
-        $this->content = $content;
+        $this->content    = $content;
         $this->statusCode = $statusCode;
-        $this->headers = array_change_key_case($headers, CASE_LOWER);
+        $this->headers    = array_change_key_case($headers, CASE_LOWER);
     }
 
     public function prepare(Oxygen_Http_Request $request)
@@ -142,15 +142,7 @@ class Oxygen_Http_Response
         $this->sendHeaders();
         $this->emptyBuffers();
 
-        if ($this instanceof Oxygen_Http_StreamingResponseInterface) {
-            $stream = $this->createResponseStream();
-
-            while (!$stream->eof()) {
-                print $stream->read(1048576);
-            }
-        } else {
-            print $this->getContentAsString();
-        }
+        print $this->getContentAsString();
     }
 
     protected function sendHeaders()

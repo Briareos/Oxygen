@@ -8,6 +8,11 @@ class Oxygen_Event_ExceptionEvent extends Oxygen_EventDispatcher_Event
     private $request;
 
     /**
+     * @var Oxygen_Util_RequestData|null
+     */
+    private $requestData;
+
+    /**
      * @var Exception
      */
     private $exception;
@@ -18,13 +23,15 @@ class Oxygen_Event_ExceptionEvent extends Oxygen_EventDispatcher_Event
     private $response;
 
     /**
-     * @param Oxygen_Http_Request $request
-     * @param Exception           $exception
+     * @param Oxygen_Http_Request          $request
+     * @param Oxygen_Util_RequestData|null $requestData
+     * @param Exception                    $exception
      */
-    public function __construct(Oxygen_Http_Request $request, Exception $exception)
+    public function __construct(Oxygen_Http_Request $request, $requestData = null, Exception $exception)
     {
-        $this->request   = $request;
-        $this->exception = $exception;
+        $this->request     = $request;
+        $this->requestData = $requestData;
+        $this->exception   = $exception;
     }
 
     /**
@@ -33,6 +40,14 @@ class Oxygen_Event_ExceptionEvent extends Oxygen_EventDispatcher_Event
     public function getRequest()
     {
         return $this->request;
+    }
+
+    /**
+     * @return Oxygen_Util_RequestData|null
+     */
+    public function getRequestData()
+    {
+        return $this->requestData;
     }
 
     /**

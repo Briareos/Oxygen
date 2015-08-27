@@ -26,98 +26,98 @@ class Oxygen_EventListener_ProtocolListener
 
     public function onMasterRequest(Oxygen_Event_MasterRequestEvent $event)
     {
-        $data = $event->getData();
+        $data = $event->getRequestData();
 
-        if (empty($data['oxygenRequestId'])) {
+        if (empty($data->oxygenRequestId)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_PROVIDED);
         }
 
-        if (!is_string($data['oxygenRequestId']) || !strlen($data['oxygenRequestId'])) {
+        if (!is_string($data->oxygenRequestId) || !strlen($data->oxygenRequestId)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_VALID);
         }
 
-        if (empty($data['publicKey'])) {
+        if (empty($data->publicKey)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_PUBLIC_KEY_NOT_PROVIDED);
         }
 
-        if (!is_string($data['publicKey']) || !strlen($data['publicKey'])) {
+        if (!is_string($data->publicKey) || !strlen($data->publicKey)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_PUBLIC_KEY_NOT_VALID);
         }
 
-        if (empty($data['signature'])) {
+        if (empty($data->signature)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_SIGNATURE_NOT_PROVIDED);
         }
 
-        if (!is_string($data['signature']) || !preg_match('{^[a-zA-Z\d/+]+={0,2}$}', $data['signature'])) {
+        if (!is_string($data->signature) || !preg_match('{^[a-zA-Z\d/+]+={0,2}$}', $data->signature)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_SIGNATURE_NOT_VALID);
         }
 
-        if (empty($data['handshakeKey'])) {
+        if (empty($data->handshakeKey)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_HANDSHAKE_KEY_NOT_PROVIDED);
         }
 
-        if (!is_string($data['handshakeKey']) || !preg_match('{^[a-z0-9_]+$}', $data['handshakeKey'])) {
+        if (!is_string($data->handshakeKey) || !preg_match('{^[a-z0-9_]+$}', $data->handshakeKey)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_HANDSHAKE_KEY_NOT_VALID);
         }
 
-        if (empty($data['handshakeSignature'])) {
+        if (empty($data->handshakeSignature)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_HANDSHAKE_SIGNATURE_NOT_PROVIDED);
         }
 
-        if (!is_string($data['handshakeSignature']) || !preg_match('{^[a-zA-Z\d/+]+={0,2}$}', $data['handshakeSignature'])) {
+        if (!is_string($data->handshakeSignature) || !preg_match('{^[a-zA-Z\d/+]+={0,2}$}', $data->handshakeSignature)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_HANDSHAKE_SIGNATURE_NOT_VALID);
         }
 
-        if (empty($data['nonce'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_NONCE_NOT_PROVIDED);
+        if (empty($data->requestExpiresAt)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_EXPIRATION_NOT_PROVIDED);
         }
 
-        if (!is_string($data['nonce']) || !preg_match('{^[a-z0-9]{32}_\d+$}', $data['nonce'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_NONCE_NOT_VALID);
+        if (!is_int($data->requestExpiresAt)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_EXPIRATION_NOT_VALID);
         }
 
-        if (empty($data['requiredVersion'])) {
+        if (empty($data->requiredVersion)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUIRED_VERSION_NOT_PROVIDED);
         }
 
-        if (!is_string($data['requiredVersion']) || !preg_match('{^\d+\.\d+$}', $data['requiredVersion'])) {
+        if (!is_string($data->requiredVersion) || !preg_match('{^\d+\.\d+$}', $data->requiredVersion)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUIRED_VERSION_NOT_VALID);
         }
 
-        if (version_compare($data['requiredVersion'], $this->version, '>')) {
+        if (version_compare($data->requiredVersion, $this->version, '>')) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_VERSION_TOO_LOW);
         }
 
-        if (empty($data['actionName'])) {
+        if (empty($data->actionName)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_ACTION_NAME_NOT_PROVIDED);
         }
 
-        if (!is_string($data['actionName'])) {
+        if (!is_string($data->actionName)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_ACTION_NAME_NOT_VALID);
         }
 
-        if (!array_key_exists('actionParameters', $data) || !is_array($data['actionParameters'])) {
+        if (!isset($data->actionParameters)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_ACTION_PARAMETERS_NOT_PROVIDED);
         }
 
-        if (!is_array($data['actionParameters'])) {
+        if (!is_array($data->actionParameters)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_ACTION_PARAMETERS_NOT_VALID);
         }
 
-        if (empty($data['baseUrl'])) {
+        if (empty($data->baseUrl)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_NOT_PROVIDED);
         }
 
-        if (!is_string($data['baseUrl']) || !in_array(parse_url($data['baseUrl'], PHP_URL_SCHEME), array('http', 'https')) || !is_string(parse_url($data['baseUrl'], PHP_URL_HOST))) {
+        if (!is_string($data->baseUrl) || !in_array(parse_url($data->baseUrl, PHP_URL_SCHEME), array('http', 'https')) || !is_string(parse_url($data->baseUrl, PHP_URL_HOST))) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_NOT_VALID);
         }
 
-        $providedBaseUrlSlug = Oxygen_Util::getUrlSlug($data['baseUrl']);
+        $providedBaseUrlSlug = Oxygen_Util::getUrlSlug($data->baseUrl);
         $currentBaseUrlSlug  = Oxygen_Util::getUrlSlug($this->baseUrl);
 
         if ($providedBaseUrlSlug !== $currentBaseUrlSlug) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_SLUG_MISMATCHES, null, array(
-                'providedBaseUrl'     => $data['baseUrl'],
+                'providedBaseUrl'     => $data->baseUrl,
                 'providedBaseUrlSlug' => $providedBaseUrlSlug,
                 'currentBaseUrl'      => $this->baseUrl,
                 'currentBaseUrlSlug'  => $currentBaseUrlSlug,

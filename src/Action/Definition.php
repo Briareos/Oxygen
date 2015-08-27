@@ -17,6 +17,10 @@ class Oxygen_Action_Definition
      */
     private $options;
 
+    private static $defaultOptions = array(
+        'hook_name' => null,
+    );
+
     /**
      * @param string $class   Action class. It may implement Oxygen_Container_ServiceLocatorAware interface.
      * @param string $method  Action method. It will be parsed using reflection and injected with attributes
@@ -27,6 +31,9 @@ class Oxygen_Action_Definition
      */
     public function __construct($class, $method, array $options = array())
     {
+        $this->validateOptions($options);
+        $options += self::$defaultOptions;
+
         // The reason we're not checking if it's a valid "callable" here is
         // because public non-static methods are not really callable.
         // Also, there's no need to autoload the class right now.
@@ -51,11 +58,21 @@ class Oxygen_Action_Definition
         return $this->method;
     }
 
-    /**
-     * @return array
-     */
-    public function getOptions()
+    public function getOption($name)
     {
-        return $this->options;
+        if (!array_key_exists($name, $this->options)) {
+            throw new InvalidArgumentException(sprintf('Option "%s" is not recognized', $name));
+        }
+
+        return $this->options[$name];
+    }
+
+    private function validateOptions(array $options)
+    {
+        foreach ($options as $optionName => $optionDefault) {
+            if (!array_key_exists($optionName, self::$defaultOptions)) {
+                throw new InvalidArgumentException(sprintf('Option "%s" is not registered, valid options are: "%s".', $optionName, implode('", "', array_keys(self::$defaultOptions))));
+            }
+        }
     }
 }

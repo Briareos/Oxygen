@@ -44,12 +44,14 @@ class Oxygen_EventListener_HandshakeListener
 
     public function onMasterRequest(Oxygen_Event_MasterRequestEvent $event)
     {
-        $data              = $event->getData();
+        $request           = $event->getRequest();
+        $data              = $event->getRequestData();
         $existingPublicKey = $this->state->get('oxygen_public_key');
 
-        $providedPublicKey = $data['publicKey'];
-        $signature         = $data['signature'];
-        $nonce             = $data['nonce'];
+        $providedPublicKey = $data->publicKey;
+        $signature         = $data->signature;
+        $requestId         = $data->oxygenRequestId;
+        $requestExpiresAt  = $data->requestExpiresAt;
 
         if (empty($existingPublicKey)) {
             // There is no public key set, use the provided one to verify SSL implementation.
@@ -58,7 +60,7 @@ class Oxygen_EventListener_HandshakeListener
             $verifyPublicKey = $existingPublicKey;
         }
 
-        $verified = $this->rsaVerifier->verify($verifyPublicKey, $nonce, $signature);
+        $verified = $this->rsaVerifier->verify($verifyPublicKey, sprintf('%s|%d', $requestId, $requestExpiresAt), $signature);
 
         if (!$verified) {
             if (empty($existingPublicKey)) {
@@ -71,29 +73,31 @@ class Oxygen_EventListener_HandshakeListener
 
         if (!empty($existingPublicKey)) {
             // We validated against an existing key.
-            $this->nonceManager->useNonce($nonce);
+            $this->nonceManager->useNonce($requestId, $requestExpiresAt);
+            $request->setAuthenticated(true);
             return;
         }
 
-        $handshakeKey = @file_get_contents($this->modulePath.'/keys/'.$data['handshakeKey'].'.key');
+        $handshakeKey = @file_get_contents($this->modulePath.'/keys/'.$data->handshakeKey.'.key');
 
         if ($handshakeKey === false) {
             $lastError = error_get_last();
             throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_KEY_NOT_FOUND, null, array(
                 'lastError' => $lastError['message'],
-                'keyPath'   => $this->modulePath.'/'.$data['handshakeKey'],
+                'keyPath'   => $this->modulePath.'/'.$data->handshakeKey,
             ));
         }
 
         $urlSlug = Oxygen_Util::getUrlSlug($this->baseUrl);
 
-        $verifiedHandshake = $this->rsaVerifier->verify($handshakeKey, $urlSlug, $data['handshakeSignature']);
+        $verifiedHandshake = $this->rsaVerifier->verify($handshakeKey, $urlSlug, $data->handshakeSignature);
 
         if (!$verifiedHandshake) {
             throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_VERIFY_FAILED);
         }
 
-        $this->nonceManager->useNonce($nonce);
+        $this->nonceManager->useNonce($requestId, $requestExpiresAt);
         $this->state->set('oxygen_public_key', $providedPublicKey);
+        $request->setAuthenticated(true);
     }
 }

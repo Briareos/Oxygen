@@ -52,6 +52,11 @@ class Oxygen_Http_Request
     private $content;
 
     /**
+     * @var bool
+     */
+    private $authenticated;
+
+    /**
      * @param array       $query      The GET parameters.
      * @param array       $request    The POST parameters.
      * @param array       $attributes The request attributes.
@@ -130,5 +135,21 @@ class Oxygen_Http_Request
         }
 
         return preg_match('{(\s|,|;|^)'.preg_quote($type).'(\s|,|;|$)}', $this->server['HTTP_ACCEPT']);
+    }
+
+    /**
+     * @return boolean
+     */
+    public function isAuthenticated()
+    {
+        return $this->authenticated;
+    }
+
+    /**
+     * @param bool $authenticated
+     */
+    public function setAuthenticated($authenticated)
+    {
+        $this->authenticated = $authenticated;
     }
 }

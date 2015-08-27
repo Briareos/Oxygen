@@ -47,10 +47,10 @@ class RsaVerifierTest extends \PHPUnit_Framework_TestCase
         $this->assertGreaterThan(0, strlen($signature3));
         $this->assertGreaterThan(0, strlen($signature4));
 
-        $this->assertTrue($verifier->verify(self::$publicKey, $data, $signature1));
-        $this->assertFalse($verifier->verify(self::$publicKey, $data, $signature2));
-        $this->assertFalse($verifier->verify(self::$publicKey, $data, $signature3));
-        $this->assertFalse($verifier->verify(self::$publicKey, $data, $signature4));
+        $this->assertTrue($verifier->verify(self::$publicKey, $data, base64_encode($signature1)));
+        $this->assertFalse($verifier->verify(self::$publicKey, $data, base64_encode($signature2)));
+        $this->assertFalse($verifier->verify(self::$publicKey, $data, base64_encode($signature3)));
+        $this->assertFalse($verifier->verify(self::$publicKey, $data, base64_encode($signature4)));
         $this->assertFalse($verifier->verify(self::$publicKey, $data, 'foobar'));
     }
 }

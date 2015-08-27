@@ -15,10 +15,11 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
     public function __construct(array $parameters = array())
     {
         $this->parameters = $parameters + array(
-                'module_version'  => '0.0',
-                'module_path'     => dirname(dirname(dirname(__FILE__))),
-                'base_url'        => 'http://.',
-                'disable_openssl' => false,
+                'module_version'                   => '0.0',
+                'module_path'                      => dirname(dirname(dirname(__FILE__))),
+                'base_url'                         => 'http://.',
+                'disable_openssl'                  => false,
+                'fatal_error_reserved_memory_size' => 1024,
             );
     }
 
@@ -135,4 +136,38 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
      * @return Oxygen_Drupal_StateInterface
      */
     abstract protected function createState();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getModuleManager()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createModuleManager();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_Drupal_ModuleManager
+     */
+    abstract protected function createModuleManager();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getActionKernel()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createActionKernel();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_ActionKernel
+     */
+    abstract protected function createActionKernel();
 }

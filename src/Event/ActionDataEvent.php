@@ -1,17 +1,19 @@
 <?php
 
-class Oxygen_Event_MasterRequestEvent extends Oxygen_EventDispatcher_Event
+class Oxygen_Event_ActionDataEvent extends Oxygen_EventDispatcher_Event
 {
     /**
      * @var Oxygen_Http_Request
      */
     private $request;
-
     /**
      * @var Oxygen_Util_RequestData
      */
     private $requestData;
-
+    /**
+     * @var array
+     */
+    private $result;
     /**
      * @var Oxygen_Http_Response|null
      */
@@ -19,12 +21,14 @@ class Oxygen_Event_MasterRequestEvent extends Oxygen_EventDispatcher_Event
 
     /**
      * @param Oxygen_Http_Request     $request
-     * @param Oxygen_Util_RequestData $data
+     * @param Oxygen_Util_RequestData $requestData
+     * @param array                   $result
      */
-    public function __construct(Oxygen_Http_Request $request, $data)
+    public function __construct(Oxygen_Http_Request $request, $requestData, array $result)
     {
-        $this->request     = $request;
-        $this->requestData = $data;
+        $this->request = $request;
+        $this->requestData = $requestData;
+        $this->result = $result;
     }
 
     /**
@@ -44,7 +48,15 @@ class Oxygen_Event_MasterRequestEvent extends Oxygen_EventDispatcher_Event
     }
 
     /**
-     * @return Oxygen_Http_Response|null
+     * @return array
+     */
+    public function getResult()
+    {
+        return $this->result;
+    }
+
+    /**
+     * @return Oxygen_Http_Response
      */
     public function getResponse()
     {
@@ -52,9 +64,9 @@ class Oxygen_Event_MasterRequestEvent extends Oxygen_EventDispatcher_Event
     }
 
     /**
-     * @param Oxygen_Http_Response|null $response
+     * @param Oxygen_Http_Response $response
      */
-    public function setResponse($response = null)
+    public function setResponse(Oxygen_Http_Response $response)
     {
         $this->response = $response;
     }

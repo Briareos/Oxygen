@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response implements Oxygen_Http_StreamingResponseInterface
+class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response
 {
     /**
      * @var string Multipart boundary
@@ -44,10 +44,22 @@ class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response implements Oxyg
         return $output;
     }
 
+    public function send()
+    {
+        $this->sendHeaders();
+        $this->emptyBuffers();
+
+        $stream = $this->createResponseStream();
+
+        while (!$stream->eof()) {
+            print $stream->read(1048576);
+        }
+    }
+
     /**
      * @return Oxygen_Stream_Interface
      */
-    public function createResponseStream()
+    private function createResponseStream()
     {
         /** @var Oxygen_Http_MultipartResponsePart[] $parts */
         $parts = $this->content;

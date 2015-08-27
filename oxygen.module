@@ -7,9 +7,77 @@ require_once dirname(__FILE__).'/autoload.php';
  */
 function oxygen_boot()
 {
-    $kernel  = new Oxygen_Kernel(oxygen_container());
-    $request = Oxygen_Http_Request::createFromGlobals();
-    $kernel->handle($request);
+    $kernel   = new Oxygen_Kernel(oxygen_container());
+    $request  = Oxygen_Http_Request::createFromGlobals();
+    $response = $kernel->handle($request);
+
+    if ($response === null) {
+        return;
+    }
+
+    if ($response instanceof Oxygen_Http_Response) {
+        $response->send();
+        exit;
+    }
+
+    if ($response instanceof Oxygen_Util_HookedClosure) {
+        $closure = new Oxygen_Util_Closure('oxygen_send_response', $response->getCallable());
+        oxygen_queue_push($response->getHookName(), $closure->getCallable());
+    }
+}
+
+/**
+ * @param callable $callback
+ */
+function oxygen_send_response($callback)
+{
+    /** @var Oxygen_Http_Response $response */
+    $response = $callback();
+    $response->send();
+    exit;
+}
+
+function &oxygen_queue()
+{
+    static $queue;
+    return $queue;
+}
+
+/**
+ * @param string   $hook
+ * @param callable $callback
+ */
+function oxygen_queue_push($hook, $callback)
+{
+    $queue = &oxygen_queue();
+
+    $queue[$hook] = $callback;
+}
+
+/**
+ * @param string $hook
+ */
+function oxygen_queue_run($hook)
+{
+    $queue = &oxygen_queue();
+
+    if (!isset($queue[$hook])) {
+        return;
+    }
+
+    $callable = $queue[$hook];
+
+    unset($queue[$hook]);
+
+    call_user_func($callable);
+}
+
+/**
+ * Implements hook_init().
+ */
+function oxygen_init()
+{
+    oxygen_queue_run('init');
 }
 
 /**

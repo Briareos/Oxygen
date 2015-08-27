@@ -3,7 +3,7 @@
 class Oxygen_Container_Production extends Oxygen_Container_Abstract
 {
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function createRsaVerifier()
     {
@@ -15,7 +15,7 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function createConnection()
     {
@@ -23,13 +23,16 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
     }
 
     /**
-     * @inheritdoc
+     * {@inheritdoc}
      */
     protected function createActionRegistry()
     {
         $registry = new Oxygen_Action_Registry();
 
-        $registry->setDefinition('ping', new Oxygen_Action_Definition('Oxygen_Action_PingAction', 'execute'));
+        $registry->setDefinition('site.ping', new Oxygen_Action_Definition('Oxygen_Action_SitePingAction', 'execute'));
+        $registry->setDefinition('module.deactivate', new Oxygen_Action_Definition('Oxygen_Action_ModuleDeactivateAction', 'execute', array(
+            'hook_name' => 'init',
+        )));
 
         return $registry;
     }
@@ -43,6 +46,13 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         // There ARE other ways to do it, but none of them are too pretty.
 
         $dispatcher = new Oxygen_EventDispatcher_EventDispatcher();
+
+        $errorListener = new Oxygen_Container_LazyService(
+            'Oxygen_EventListener_ErrorListener',
+            $this->getParameter('fatal_error_reserved_memory_size')
+        );
+
+        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($errorListener, 'onMasterRequest'), 11);
 
         $protocolListener = new Oxygen_Container_LazyService(
             'Oxygen_EventListener_ProtocolListener',
@@ -61,11 +71,12 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         );
         $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($handshakeListener, 'onMasterRequest'), 9);
 
-        $actionListener = new Oxygen_Container_LazyService(
-            'Oxygen_EventListener_ActionListener',
-            array($this, 'getActionRegistry')
+        $actionDataListener = new Oxygen_Container_LazyService(
+            'Oxygen_eventListener_SetResponseListener'
         );
-        $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($actionListener, 'onMasterRequest'), 7);
+        $dispatcher->addListener(Oxygen_Event_Events::ACTION_DATA, array($actionDataListener, 'onActionData'), -10);
+
+        $dispatcher->addListener(Oxygen_Event_Events::EXCEPTION, array($errorListener, 'onException'), 0);
 
         return $dispatcher;
     }
@@ -84,5 +95,21 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
     protected function createState()
     {
         return new Oxygen_Drupal_State();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createModuleManager()
+    {
+        return new Oxygen_Drupal_ModuleManager();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createActionKernel()
+    {
+        return new Oxygen_ActionKernel($this->getActionRegistry(), $this->getDispatcher(), $this);
     }
 }

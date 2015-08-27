@@ -48,7 +48,13 @@ class Oxygen_Container_LazyService
             $this->instance  = $reflectionClass->newInstanceArgs($this->__resolveConstructorArgs($this->constructorArgs));
         }
 
-        return call_user_func_array(array($this->instance, $method), $args);
+        $callable = array($this->instance, $method);
+
+        if (!is_callable($callable)) {
+            throw new RuntimeException(sprintf('%s::%s is not callable.', $this->class, $method));
+        }
+
+        return call_user_func_array($callable, $args);
     }
 
     private function __resolveConstructorArgs(array $args)

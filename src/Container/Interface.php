@@ -38,4 +38,14 @@ interface Oxygen_Container_Interface
      * @return Oxygen_Drupal_StateInterface
      */
     public function getState();
+
+    /**
+     * @return Oxygen_Drupal_ModuleManager
+     */
+    public function getModuleManager();
+
+    /**
+     * @return Oxygen_ActionKernel
+     */
+    public function getActionKernel();
 }

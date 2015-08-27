@@ -18,22 +18,18 @@ class Oxygen_Security_Nonce_NonceManager implements Oxygen_Security_Nonce_NonceM
     /**
      * {@inheritdoc}
      */
-    public function useNonce($nonce)
+    public function useNonce($nonce, $expiresAt)
     {
-        list($nonceValue, $expiresAt) = explode('_', $nonce);
-
-        $expiresAt = (int)$expiresAt;
-
         if ($expiresAt < time()) {
             throw new Oxygen_Exception(Oxygen_Exception::NONCE_EXPIRED);
         }
 
-        $nonceUsed = (bool)$this->connection->query('SELECT 1 FROM {oxygen_nonce} WHERE nonce = :nonce', array(':nonce' => $nonceValue))->fetchField();
+        $nonceUsed = (bool)$this->connection->query('SELECT 1 FROM {oxygen_nonce} WHERE nonce = :nonce', array(':nonce' => $nonce))->fetchField();
 
         if ($nonceUsed) {
             throw new Oxygen_Exception(Oxygen_Exception::NONCE_ALREADY_USED);
         }
 
-        $this->connection->query('INSERT INTO {oxygen_nonce} SET nonce = :nonce, expires = :expires', array(':nonce' => $nonceValue, ':expires' => $expiresAt));
+        $this->connection->query('INSERT INTO {oxygen_nonce} SET nonce = :nonce, expires = :expires', array(':nonce' => $nonce, ':expires' => $expiresAt));
     }
 }
