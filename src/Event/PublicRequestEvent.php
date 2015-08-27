@@ -13,6 +13,11 @@ class Oxygen_Event_PublicRequestEvent extends Oxygen_EventDispatcher_Event
     private $response;
 
     /**
+     * @var Oxygen_Util_HookedClosure
+     */
+    private $deferredResponse;
+
+    /**
      * @param Oxygen_Http_Request $request
      */
     public function __construct(Oxygen_Http_Request $request)
@@ -47,5 +52,29 @@ class Oxygen_Event_PublicRequestEvent extends Oxygen_EventDispatcher_Event
     public function hasResponse()
     {
         return $this->response !== null;
+    }
+
+    /**
+     * @return Oxygen_Util_HookedClosure
+     */
+    public function getDeferredResponse()
+    {
+        return $this->deferredResponse;
+    }
+
+    /**
+     * @param Oxygen_Util_HookedClosure $deferredResponse
+     */
+    public function setDeferredResponse(Oxygen_Util_HookedClosure $deferredResponse)
+    {
+        $this->deferredResponse = $deferredResponse;
+    }
+
+    /**
+     * @return bool
+     */
+    public function hasDeferredResponse()
+    {
+        return $this->deferredResponse !== null;
     }
 }

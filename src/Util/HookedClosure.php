@@ -1,7 +1,7 @@
 <?php
 
 /**
- * The closure that should be executed on a hook.
+ * A closure that should be executed on a hook.
  */
 class Oxygen_Util_HookedClosure
 {

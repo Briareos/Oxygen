@@ -111,4 +111,20 @@ class Oxygen_Drupal_Context
 
         define($name, $value);
     }
+
+    /**
+     * @see drupal_alter
+     */
+    public function alter($type, &$data, &$context1 = null, &$context2 = null, &$context3 = null)
+    {
+        drupal_alter($type, $data, $context1, $context2, $context3);
+    }
+
+    /**
+     * @see url
+     */
+    public function url($path = null, array $options = array())
+    {
+        return url($path, $options);
+    }
 }

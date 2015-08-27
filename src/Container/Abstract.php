@@ -170,4 +170,55 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
      * @return Oxygen_ActionKernel
      */
     abstract protected function createActionKernel();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getUserManager()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createUserManager();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_Drupal_UserManager
+     */
+    abstract protected function createUserManager();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getSessionManager()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createSessionManager();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_Drupal_SessionManager
+     */
+    abstract protected function createSessionManager();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getContext()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createContext();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_Drupal_Context
+     */
+    abstract protected function createContext();
 }

@@ -7,42 +7,42 @@ class Oxygen_Http_Request
      *
      * @var array
      */
-    private $query;
+    public $query;
 
     /**
      * The POST parameters.
      *
      * @var array
      */
-    private $request;
+    public $request;
 
     /**
      * The request attributes.
      *
      * @var array
      */
-    private $attributes;
+    public $attributes;
 
     /**
      * The COOKIE parameters.
      *
      * @var array
      */
-    private $cookies;
+    public $cookies;
 
     /**
      * The FILES parameters.
      *
      * @var array
      */
-    private $files;
+    public $files;
 
     /**
      * The SERVER parameters.
      *
      * @var array
      */
-    private $server;
+    public $server;
 
     /**
      * The raw request body data.
@@ -72,7 +72,9 @@ class Oxygen_Http_Request
         $this->attributes = $attributes;
         $this->cookies    = $cookies;
         $this->files      = $files;
-        $this->server     = $server;
+        $this->server     = $server + array(
+                'REQUEST_METHOD' => 'GET',
+            );
         $this->content    = $content;
     }
 
@@ -135,6 +137,11 @@ class Oxygen_Http_Request
         }
 
         return preg_match('{(\s|,|;|^)'.preg_quote($type).'(\s|,|;|$)}', $this->server['HTTP_ACCEPT']);
+    }
+
+    public function isMethod($method)
+    {
+        return strtoupper($this->server['REQUEST_METHOD']) === strtoupper($method);
     }
 
     /**

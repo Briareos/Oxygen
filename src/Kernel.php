@@ -28,6 +28,9 @@ class Oxygen_Kernel
             // Public request.
             $publicRequestEvent = new Oxygen_Event_PublicRequestEvent($request);
             $dispatcher->dispatch(Oxygen_Event_Events::PUBLIC_REQUEST, $publicRequestEvent);
+            if ($publicRequestEvent->hasDeferredResponse()) {
+                return $publicRequestEvent->getDeferredResponse();
+            }
             return $publicRequestEvent->getResponse();
         }
 

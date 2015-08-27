@@ -48,4 +48,19 @@ interface Oxygen_Container_Interface
      * @return Oxygen_ActionKernel
      */
     public function getActionKernel();
+
+    /**
+     * @return Oxygen_Drupal_UserManager
+     */
+    public function getUserManager();
+
+    /**
+     * @return Oxygen_Drupal_SessionManager
+     */
+    public function getSessionManager();
+
+    /**
+     * @return Oxygen_Drupal_Context
+     */
+    public function getContext();
 }
