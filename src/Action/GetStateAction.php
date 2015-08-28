@@ -7,7 +7,7 @@ class Oxygen_Action_GetStateAction implements Oxygen_Container_ServiceLocatorAwa
      *
      * @return $this
      */
-    public function createFromContainer(Oxygen_Container_Interface $container)
+    public static function createFromContainer(Oxygen_Container_Interface $container)
     {
         return new self();
     }

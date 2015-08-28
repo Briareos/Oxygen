@@ -5,7 +5,7 @@
  */
 function oxygen_schema()
 {
-    $schema['oxygen_nonce'] = array(
+    $schema['oxygen_nonce']   = array(
         'description' => 'Stores cryptographic nonce used by the Oxygen module to prevent man-in-the-middle attack.',
         'fields'      => array(
             'nonce'   => array(
@@ -13,16 +13,35 @@ function oxygen_schema()
                 'type'        => 'varchar',
                 'length'      => 32,
                 'not null'    => true,
-                'default'     => '',
             ),
             'expires' => array(
                 'description' => 'The Unix timestamp when the nonce should expire. Once it expires, it can be safely deleted from the database.',
                 'type'        => 'int',
                 'not null'    => true,
-                'default'     => 0,
             ),
         ),
         'primary key' => array('nonce'),
+    );
+    $schema['oxygen_session'] = array(
+        'description' => 'Stores sessions initiated by the Oxygen module, so that they can be destroyed when needed.',
+        'fields'      => array(
+            'sid' => array(
+                'description' => 'The session ID.',
+                'type'        => 'varchar',
+                'length'      => 100,
+                'not null'    => true,
+            ),
+            'uid'   => array(
+                'description' => 'UID of the user that initiated the session from the management dashboard. This is not user UID used by Drupal.',
+                'type'        => 'varchar',
+                'length'      => 11,
+                'not null'    => true,
+            ),
+        ),
+        'primary key' => array('sid'),
+        'indexes'     => array(
+            'uid' => array('uid'),
+        ),
     );
 
     return $schema;

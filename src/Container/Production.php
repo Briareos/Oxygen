@@ -30,9 +30,10 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         $registry = new Oxygen_Action_Registry();
 
         $registry->setDefinition('site.ping', new Oxygen_Action_Definition('Oxygen_Action_SitePingAction', 'execute'));
-        $registry->setDefinition('module.deactivate', new Oxygen_Action_Definition('Oxygen_Action_ModuleDeactivateAction', 'execute', array(
+        $registry->setDefinition('module.disable', new Oxygen_Action_Definition('Oxygen_Action_ModuleDisableAction', 'execute', array(
             'hook_name' => 'init',
         )));
+        $registry->setDefinition('site.logout', new Oxygen_Action_Definition('Oxygen_Action_SiteLogoutAction', 'execute'));
 
         return $registry;
     }
@@ -134,7 +135,7 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
 
     protected function createSessionManager()
     {
-        return new Oxygen_Drupal_SessionManager($this->getContext());
+        return new Oxygen_Drupal_SessionManager($this->getContext(), $this->getConnection());
     }
 
     protected function createContext()

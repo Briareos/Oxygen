@@ -92,26 +92,36 @@ class Oxygen_EventListener_LoginListener
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_SIGNATURE_NOT_VALID);
         }
 
-        if (isset($params['actionParameters']) && !is_array($params['actionParameters'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_ACTION_PARAMETERS_NOT_VALID);
+        if (!isset($params['username'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_PROVIDED);
+        }
+
+        if (!is_string($params['username'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_VALID);
+        }
+
+        if (!isset($params['userUid'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_UID_NOT_PROVIDED);
+        }
+
+        if (!is_string($params['userUid']) || !preg_match('{^U\d{10}$}', $params['userUid'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_UID_NOT_VALID);
         }
 
         $params['requestExpiresAt'] = (int)$params['requestExpiresAt'];
         $publicKey                  = $this->state->get('oxygen_public_key');
-        $username                   = isset($params['actionParameters']['username']) && is_string($params['actionParameters']['username']) ? $params['actionParameters']['username'] : null;
 
         if (!$publicKey) {
             throw new Oxygen_Exception(Oxygen_Exception::PUBLIC_KEY_MISSING);
         }
 
-        if (!$this->rsaVerifier->verify($publicKey, sprintf('%s|%d', $params['oxygenRequestId'], $params['requestExpiresAt']), $params['signature'])) {
+        if (!$this->rsaVerifier->verify($publicKey, sprintf('%s|%d|%s|%s', $params['oxygenRequestId'], $params['requestExpiresAt'], $params['userUid'], $params['username']), $params['signature'])) {
             throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_VERIFY_FAILED);
         }
 
         $this->nonceManager->useNonce($params['oxygenRequestId'], $params['requestExpiresAt']);
 
-
-        $closure = new Oxygen_Util_Closure(array($this, 'loginUser'), $username);
+        $closure = new Oxygen_Util_Closure(array($this, 'loginUser'), $params['userUid'], $params['username']);
 
         $event->setDeferredResponse(new Oxygen_Util_HookedClosure('init', $closure->getCallable()));
     }
@@ -119,18 +129,19 @@ class Oxygen_EventListener_LoginListener
     /**
      * @internal
      *
-     * @param $username
+     * @param string $userUid UID of the user on the management dashboard, not a Drupal's user.
+     * @param string $username
      *
      * @return Oxygen_Http_RedirectResponse
      *
      * @throws Oxygen_Exception
      */
-    public function loginUser($username)
+    public function loginUser($userUid, $username)
     {
-        if ($username === null) {
-            $user = $this->userManager->findUserById(1);
-        } else {
+        if (strlen($username)) {
             $user = $this->userManager->findUserByUsername($username);
+        } else {
+            $user = $this->userManager->findUserById(1);
         }
 
         if ($user === null) {
@@ -143,13 +154,17 @@ class Oxygen_EventListener_LoginListener
         $options          = array();
         $httpResponseCode = 302;
 
+        $sessionId = $this->sessionManager->getSessionId();
+
+        $this->sessionManager->registerSession($userUid, $sessionId);
+
         $path = 'admin/dashboard';
         $this->context->alter('drupal_goto', $path, $options, $httpResponseCode);
         $options = array('absolute' => true);
 
         // The 'Location' HTTP header must be absolute.
         $options['absolute'] = true;
-        $url = $this->context->url($path, $options);
+        $url                 = $this->context->url($path, $options);
 
         $response = new Oxygen_Http_RedirectResponse($url, $httpResponseCode);
 

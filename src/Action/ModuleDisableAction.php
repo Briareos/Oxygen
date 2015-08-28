@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Action_ModuleDeactivateAction implements Oxygen_Container_ServiceLocatorAware
+class Oxygen_Action_ModuleDisableAction implements Oxygen_Container_ServiceLocatorAware
 {
     /**
      * @var Oxygen_Drupal_ModuleManager
@@ -18,7 +18,7 @@ class Oxygen_Action_ModuleDeactivateAction implements Oxygen_Container_ServiceLo
     /**
      * {@inheritdoc}
      */
-    public function createFromContainer(Oxygen_Container_Interface $container)
+    public static function createFromContainer(Oxygen_Container_Interface $container)
     {
         return new self($container->getModuleManager());
     }

@@ -19,6 +19,13 @@ final class Oxygen_Util_RequestData
     public $publicKey;
 
     /**
+     * Can be an empty string.
+     *
+     * @var string
+     */
+    public $username;
+
+    /**
      * @var string
      */
     public $signature;

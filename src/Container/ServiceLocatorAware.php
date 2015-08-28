@@ -7,5 +7,5 @@ interface Oxygen_Container_ServiceLocatorAware
      *
      * @return $this
      */
-    public function createFromContainer(Oxygen_Container_Interface $container);
+    public static function createFromContainer(Oxygen_Container_Interface $container);
 }

@@ -55,10 +55,16 @@ class Oxygen_Exception extends Exception
     const PROTOCOL_BASE_URL_SLUG_MISMATCHES = 10041;
     const PROTOCOL_REQUEST_ID_NOT_PROVIDED = 10044;
     const PROTOCOL_REQUEST_ID_NOT_VALID = 10045;
+    const PROTOCOL_USERNAME_NOT_PROVIDED = 10049;
+    const PROTOCOL_USERNAME_NOT_VALID = 10048;
+    const PROTOCOL_USER_UID_NOT_PROVIDED = 10050;
+    const PROTOCOL_USER_UID_NOT_VALID = 10051;
 
     const PUBLIC_KEY_MISSING = 10046;
 
     const AUTO_LOGIN_CAN_NOT_FIND_USER = 10047;
+
+    // Next error code: 10052
 
     /**
      * List of constants defined in this class.
