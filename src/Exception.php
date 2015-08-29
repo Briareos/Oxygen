@@ -116,8 +116,6 @@ class Oxygen_Exception extends Exception
         $this->errorName      = $this->getTypeForCode($code);
         $this->context        = $context;
 
-        var_dump($context);
-
         $message = sprintf('Error [%d]: %s', $code, $this->errorName);
 
         $this->previousException = $previous;

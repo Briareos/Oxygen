@@ -37,7 +37,7 @@ class Oxygen_Archive_Zip implements Oxygen_Archive_Interface
     {
         $zip = new ZipArchive();
 
-        $zip->open($path);
+        $zip->open($this->file);
         $this->checkStatus($zip);
 
         $zip->extractTo($path);
