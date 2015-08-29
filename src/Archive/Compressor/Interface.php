@@ -15,4 +15,11 @@ interface Oxygen_Archive_Compressor_Interface
      * @return string Binary data.
      */
     public function readBlock($resource);
+
+    /**
+     * @param resource $resource
+     *
+     * @return bool
+     */
+    public function close($resource);
 }

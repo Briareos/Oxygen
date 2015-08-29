@@ -17,4 +17,12 @@ class Oxygen_Archive_Compressor_Gz implements Oxygen_Archive_Compressor_Interfac
     {
         return gzread($resource, 512);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function close($resource)
+    {
+        return gzclose($resource);
+    }
 }

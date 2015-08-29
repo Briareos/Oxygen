@@ -17,4 +17,12 @@ class Oxygen_Archive_Compressor_None implements Oxygen_Archive_Compressor_Interf
     {
         return fread($resource, 512);
     }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function close($resource)
+    {
+        return fclose($resource);
+    }
 }

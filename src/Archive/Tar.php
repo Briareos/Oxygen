@@ -32,8 +32,6 @@ class Oxygen_Archive_Tar implements Oxygen_Archive_Interface
     {
         $this->file       = $file;
         $this->compressor = $compressor;
-
-        $this->resource = $this->compressor->open($this->file);
     }
 
     /**
@@ -59,6 +57,20 @@ class Oxygen_Archive_Tar implements Oxygen_Archive_Interface
     }
 
     /**
+     * {@inheritdoc}
+     */
+    public function extract($path)
+    {
+        $this->resource = $this->compressor->open($this->file);
+        try {
+            $this->doExtract($path);
+        } catch (Exception $e) {
+            $this->compressor->close($this->resource);
+            throw $e;
+        }
+    }
+
+    /**
      * @return string
      */
     private function readBlock()
@@ -66,7 +78,7 @@ class Oxygen_Archive_Tar implements Oxygen_Archive_Interface
         return $this->compressor->readBlock($this->resource);
     }
 
-    public function extract($path)
+    private function doExtract($path)
     {
         if (!is_dir($path)) {
             throw new Oxygen_Exception(Oxygen_Exception::ARCHIVE_TAR_DESTINATION_DOES_NOT_EXIST);
