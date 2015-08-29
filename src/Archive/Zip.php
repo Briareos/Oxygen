@@ -47,6 +47,13 @@ class Oxygen_Archive_Zip implements Oxygen_Archive_Interface
         $this->checkStatus($zip);
     }
 
+    /**
+     * Throws an exception if the ZipArchive status is not OK.
+     *
+     * @param ZipArchive $zip
+     *
+     * @throws Oxygen_Exception
+     */
     private function checkStatus(ZipArchive $zip)
     {
         if ($zip->status !== ZipArchive::ER_OK) {
