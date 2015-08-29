@@ -33,6 +33,9 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         $registry->setDefinition('module.disable', new Oxygen_Action_Definition('Oxygen_Action_ModuleDisableAction', 'execute', array(
             'hook_name' => 'init',
         )));
+        $registry->setDefinition('module.enable', new Oxygen_Action_Definition('Oxygen_Action_ModuleEnableAction', 'execute', array(
+            'hook_name' => 'init',
+        )));
         $registry->setDefinition('site.logout', new Oxygen_Action_Definition('Oxygen_Action_SiteLogoutAction', 'execute'));
 
         return $registry;
