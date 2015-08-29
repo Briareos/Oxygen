@@ -4,7 +4,7 @@ class Oxygen_Exception extends Exception
 {
     const GENERAL_ERROR = 10000;
 
-    const FATAL_ERROR = 10046;
+    const FATAL_ERROR = 10076;
 
     const RSA_KEY_OPENSSL_VERIFY_ERROR = 10001;
 
@@ -82,7 +82,17 @@ class Oxygen_Exception extends Exception
     const ARCHIVE_ZIP_EXTENSION_NOT_LOADED = 10065;
     const ARCHIVE_ZIP_EXTENSION_ERROR = 10066;
 
-    // Next error code: 10067
+    const PROJECT_MANAGER_UNABLE_TO_RETRIEVE_DRUPAL_PROJECT = 10067;
+    const PROJECT_MANAGER_EXTRACT_FAILED = 10068;
+    const PROJECT_MANAGER_ARCHIVE_CONTAINS_NO_FILES = 10069;
+    const PROJECT_MANAGER_ARCHIVE_VERIFY_ERROR = 10070;
+    const PROJECT_MANAGER_CAN_NOT_FIND_APPROPRIATE_UPDATER = 10071;
+    const PROJECT_MANAGER_UNABLE_TO_PARSE_PROJECT_INFO = 10072;
+    const PROJECT_MANAGER_UNABLE_TO_DETERMINE_PROJECT_NAME = 10073;
+    const PROJECT_MANAGER_PROJECT_ALREADY_INSTALLED = 10074;
+    const PROJECT_MANAGER_FILE_SYSTEM_NOT_WRITABLE = 10075;
+
+    // Next error code: 10077
 
     /**
      * List of constants defined in this class.
@@ -99,7 +109,7 @@ class Oxygen_Exception extends Exception
     /**
      * Optional exception context.
      *
-     * @var array
+     * @var array|null
      */
     protected $context;
 
@@ -110,16 +120,18 @@ class Oxygen_Exception extends Exception
      */
     private $previousException;
 
-    public function __construct($code, array $context = array(), Exception $previous = null)
+    public function __construct($code, array $context = null, Exception $previous = null)
     {
         $context['lastError'] = error_get_last();
         $this->errorName      = $this->getTypeForCode($code);
         $this->context        = $context;
 
+
         $message = sprintf('Error [%d]: %s', $code, $this->errorName);
 
         $this->previousException = $previous;
         parent::__construct($message, $code);
+        var_dump($this);
     }
 
     public function getPreviousException()
@@ -150,7 +162,7 @@ class Oxygen_Exception extends Exception
     }
 
     /**
-     * @return array
+     * @return array|null
      */
     public function getContext()
     {

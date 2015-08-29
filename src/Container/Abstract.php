@@ -140,19 +140,19 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
     /**
      * {@inheritdoc}
      */
-    public function getModuleManager()
+    public function getProjectManager()
     {
         if (!isset($this->registry[__METHOD__])) {
-            $this->registry[__METHOD__] = $this->createModuleManager();
+            $this->registry[__METHOD__] = $this->createProjectManager();
         }
 
         return $this->registry[__METHOD__];
     }
 
     /**
-     * @return Oxygen_Drupal_ModuleManager
+     * @return Oxygen_Drupal_ProjectManager
      */
-    abstract protected function createModuleManager();
+    abstract protected function createProjectManager();
 
     /**
      * {@inheritdoc}

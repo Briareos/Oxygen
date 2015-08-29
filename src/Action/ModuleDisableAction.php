@@ -3,16 +3,16 @@
 class Oxygen_Action_ModuleDisableAction implements Oxygen_Container_ServiceLocatorAware
 {
     /**
-     * @var Oxygen_Drupal_ModuleManager
+     * @var Oxygen_Drupal_ProjectManager
      */
-    private $moduleManager;
+    private $projectManager;
 
     /**
-     * @param $moduleManager
+     * @param $projectManager
      */
-    public function __construct(Oxygen_Drupal_ModuleManager $moduleManager)
+    public function __construct(Oxygen_Drupal_ProjectManager $projectManager)
     {
-        $this->moduleManager = $moduleManager;
+        $this->projectManager = $projectManager;
     }
 
     /**
@@ -20,12 +20,12 @@ class Oxygen_Action_ModuleDisableAction implements Oxygen_Container_ServiceLocat
      */
     public static function createFromContainer(Oxygen_Container_Interface $container)
     {
-        return new self($container->getModuleManager());
+        return new self($container->getProjectManager());
     }
 
     public function execute(array $modules, $disableDependents = false)
     {
-        $this->moduleManager->disableModules($modules, $disableDependents);
+        $this->projectManager->disableModules($modules, $disableDependents);
 
         return array();
     }

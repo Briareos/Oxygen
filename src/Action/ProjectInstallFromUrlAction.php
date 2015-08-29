@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Action_ModuleEnableAction implements Oxygen_Container_ServiceLocatorAware
+class Oxygen_Action_ProjectInstallFromUrlAction implements Oxygen_Container_ServiceLocatorAware
 {
     /**
      * @var Oxygen_Drupal_ProjectManager
@@ -8,7 +8,7 @@ class Oxygen_Action_ModuleEnableAction implements Oxygen_Container_ServiceLocato
     private $projectManager;
 
     /**
-     * @param $projectManager
+     * @param Oxygen_Drupal_ProjectManager $projectManager
      */
     public function __construct(Oxygen_Drupal_ProjectManager $projectManager)
     {
@@ -23,10 +23,12 @@ class Oxygen_Action_ModuleEnableAction implements Oxygen_Container_ServiceLocato
         return new self($container->getProjectManager());
     }
 
-    public function execute(array $modules, $enableDependencies = false)
+    public function execute($url)
     {
-        $this->projectManager->enableModules($modules, $enableDependencies);
+        $context = $this->projectManager->installProjectFromUrl($url);
 
-        return array();
+        return array(
+            'context' => $context,
+        );
     }
 }

@@ -68,6 +68,10 @@ class Oxygen_EventListener_ErrorListener
         if ($exception instanceof Oxygen_Exception) {
             $exceptionData['type'] = $exception->getType();
 
+            if ($exception->getPreviousException()) {
+                $exceptionData['previous'] = $this->getExceptionData($exception->getPreviousException(), $verbose);
+            }
+
             if ($verbose) {
                 $exceptionData['context'] = $exception->getContext();
             }

@@ -3,3 +3,4 @@ description = Enables implementation with ManageDrupal.com dashboard.
 package = Core
 version = 1.0
 core = 7.x
+dependencies[] = update
