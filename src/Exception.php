@@ -131,7 +131,6 @@ class Oxygen_Exception extends Exception
 
         $this->previousException = $previous;
         parent::__construct($message, $code);
-        var_dump($this);
     }
 
     public function getPreviousException()
