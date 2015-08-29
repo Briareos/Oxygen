@@ -36,7 +36,10 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         $registry->setDefinition('module.enable', new Oxygen_Action_Definition('Oxygen_Action_ModuleEnableAction', 'execute', array(
             'hook_name' => 'init',
         )));
-        $registry->setDefinition('project.installFromUrl', new Oxygen_Action_Definition('Oxygen_Action_ProjectInstallFromUrl', 'execute', array(
+        $registry->setDefinition('project.installFromUrl', new Oxygen_Action_Definition('Oxygen_Action_ProjectInstallFromUrlAction', 'execute', array(
+            'hook_name' => 'init',
+        )));
+        $registry->setDefinition('module.uninstall', new Oxygen_Action_Definition('Oxygen_Action_ModuleUninstallAction', 'execute', array(
             'hook_name' => 'init',
         )));
         $registry->setDefinition('site.logout', new Oxygen_Action_Definition('Oxygen_Action_SiteLogoutAction', 'execute'));

@@ -3,7 +3,22 @@
 class Oxygen_Drupal_ProjectManager
 {
     /**
-     * @see module_disable
+     * @see module_enable
+     *
+     * @param string[] $modules
+     * @param bool     $enableDependencies
+     */
+    public function enableModules($modules, $enableDependencies = false)
+    {
+        module_enable($modules, $enableDependencies);
+    }
+
+    /**
+     * This is removed in Drupal 8, and module deactivation is highly discouraged.
+     *
+     * @link https://www.drupal.org/node/2225029
+     *
+     * @see  module_disable
      *
      * @param string[] $modules
      * @param bool     $disableDependents
@@ -14,14 +29,19 @@ class Oxygen_Drupal_ProjectManager
     }
 
     /**
-     * @see module_enable
+     * This function will not perform an uninstallation
      *
-     * @param string[] $modules
-     * @param bool     $enableDependencies
+     * @param array      $modules
+     * @param bool|false $uninstallDependents
+     *
+     * @return bool Returns false if $uninstallDependents is true and a module in $modules list has dependents which are
+     *              not already uninstalled and also not included in $modules list.
      */
-    public function enableModules($modules, $enableDependencies = false)
+    public function uninstallModule(array $modules, $uninstallDependents = true)
     {
-        module_enable($modules, $enableDependencies);
+        include_once DRUPAL_ROOT.'/includes/install.inc';
+
+        return drupal_uninstall_modules($modules, $uninstallDependents);
     }
 
     /**
@@ -153,13 +173,5 @@ class Oxygen_Drupal_ProjectManager
         // ];
 
         return $context;
-    }
-
-    /**
-     * @param string $module
-     */
-    public function uninstallModule($module)
-    {
-
     }
 }
