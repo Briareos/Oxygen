@@ -66,7 +66,7 @@ class Oxygen_Exception extends Exception
 
     const MULTIPART_ENCODING_NOT_SUPPORTED = 10052;
 
-    const ARCHIVE_TAR_FILE_NOT_FOUND = 10053;
+    const ARCHIVE_FILE_NOT_FOUND = 10053;
     const ARCHIVE_TAR_ZLIB_EXTENSION_NOT_LOADED = 10054;
     const ARCHIVE_TAR_DESTINATION_DOES_NOT_EXIST = 10055;
     const ARCHIVE_TAR_FILE_EXISTS_AS_DIRECTORY = 10056;
@@ -79,7 +79,10 @@ class Oxygen_Exception extends Exception
     const ARCHIVE_TAR_CHECKSUM_NOT_VALID = 10063;
     const ARCHIVE_TAR_FILE_NAME_CONTAINS_DIRECTORY_TRAVERSAL = 10064;
 
-    // Next error code: 10053
+    const ARCHIVE_ZIP_EXTENSION_NOT_LOADED = 10065;
+    const ARCHIVE_ZIP_EXTENSION_ERROR = 10066;
+
+    // Next error code: 10067
 
     /**
      * List of constants defined in this class.

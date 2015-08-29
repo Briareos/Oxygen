@@ -2,7 +2,15 @@
 
 interface Oxygen_Archive_Interface
 {
-    public static function openLocalFile($fileName);
+    /**
+     * @param $file
+     *
+     * @return $this
+     */
+    public static function openLocalFile($file);
 
+    /**
+     * @param $path
+     */
     public function extract($path);
 }

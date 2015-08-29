@@ -35,16 +35,12 @@ class Oxygen_Archive_Tar implements Oxygen_Archive_Interface
     }
 
     /**
-     * @param string $file
-     *
-     * @return Oxygen_Archive_Tar
-     *
-     * @throws Oxygen_Exception If the file can not be open.
+     * {@inheritdoc}
      */
     public static function openLocalFile($file)
     {
         if (!file_exists($file)) {
-            throw new Oxygen_Exception(Oxygen_Exception::ARCHIVE_TAR_FILE_NOT_FOUND);
+            throw new Oxygen_Exception(Oxygen_Exception::ARCHIVE_FILE_NOT_FOUND);
         }
         if (file_get_contents($file, null, null, 0, 2) === "\37\213") {
             if (!extension_loaded('zlib')) {
