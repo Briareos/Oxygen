@@ -23,6 +23,8 @@ class Oxygen_Archive_Compressor_Gz implements Oxygen_Archive_Compressor_Interfac
      */
     public function close($resource)
     {
+
+
         return gzclose($resource);
     }
 }

@@ -65,9 +65,10 @@ class Oxygen_Archive_Tar implements Oxygen_Archive_Interface
         try {
             $this->doExtract($path);
         } catch (Exception $e) {
-            $this->compressor->close($this->resource);
             throw $e;
         }
+        $this->compressor->close($this->resource);
+        $this->resource = null;
     }
 
     /**
