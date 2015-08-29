@@ -26,7 +26,7 @@ class Oxygen_Action_Registry
     public function getDefinition($name)
     {
         if (!isset($this->registry[$name])) {
-            throw new Oxygen_Exception(Oxygen_Exception::ACTION_NOT_FOUND, null, array('action' => $name));
+            throw new Oxygen_Exception(Oxygen_Exception::ACTION_NOT_FOUND, array('action' => $name));
         }
 
         return $this->registry[$name];

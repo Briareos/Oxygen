@@ -13,7 +13,7 @@ class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response
             $boundary = uniqid();
         }
 
-        $this->boundary = $boundary;
+        $this->boundary          = $boundary;
         $headers["content-type"] = "multipart/mixed; boundary=".$this->boundary;
 
         if (!isset($headers["content-transfer-encoding"])) {
@@ -62,7 +62,7 @@ class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response
     private function createResponseStream()
     {
         /** @var Oxygen_Http_MultipartResponsePart[] $parts */
-        $parts = $this->content;
+        $parts  = $this->content;
         $stream = new Oxygen_Stream_Append();
 
         $stream->addStream(Oxygen_Stream_Stream::factory("\r\n".$this->getMultipartBoundary()));
@@ -128,7 +128,9 @@ class Oxygen_Http_MultipartResponse extends Oxygen_Http_Response
                 $body = new Oxygen_Stream_Base64EncodedStream($body);
                 break;
             default:
-                throw new Oxygen_Exception(Oxygen_Exception::GENERAL_ERROR, 'Encoding %s not supported.');
+                throw new Oxygen_Exception(Oxygen_Exception::MULTIPART_ENCODING_NOT_SUPPORTED, array(
+                    'encoding' => $part->getEncoding(),
+                ));
         }
 
         $stream->addStream(Oxygen_Stream_Stream::factory("\r\n"));

@@ -82,7 +82,7 @@ class Oxygen_EventListener_HandshakeListener
 
         if ($handshakeKey === false) {
             $lastError = error_get_last();
-            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_KEY_NOT_FOUND, null, array(
+            throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_LOCAL_KEY_NOT_FOUND, array(
                 'lastError' => $lastError['message'],
                 'keyPath'   => $this->modulePath.'/'.$data->handshakeKey,
             ));

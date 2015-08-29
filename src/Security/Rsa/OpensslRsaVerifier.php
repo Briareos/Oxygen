@@ -19,7 +19,7 @@ class Oxygen_Security_Rsa_OpensslRsaVerifier implements Oxygen_Security_Rsa_RsaV
                 $error = $errorRow."\n".$error;
             }
 
-            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_OPENSSL_VERIFY_ERROR, "There was an error while trying to use OpenSSL to verify a message.", array(
+            throw new Oxygen_Exception(Oxygen_Exception::RSA_KEY_OPENSSL_VERIFY_ERROR, array(
                 'opensslError' => $error,
                 'error'        => isset($lastError['message']) ? $lastError['message'] : null,
             ));

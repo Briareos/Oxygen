@@ -64,7 +64,22 @@ class Oxygen_Exception extends Exception
 
     const AUTO_LOGIN_CAN_NOT_FIND_USER = 10047;
 
-    // Next error code: 10052
+    const MULTIPART_ENCODING_NOT_SUPPORTED = 10052;
+
+    const ARCHIVE_TAR_FILE_NOT_FOUND = 10053;
+    const ARCHIVE_TAR_ZLIB_EXTENSION_NOT_LOADED = 10054;
+    const ARCHIVE_TAR_DESTINATION_DOES_NOT_EXIST = 10055;
+    const ARCHIVE_TAR_FILE_EXISTS_AS_DIRECTORY = 10056;
+    const ARCHIVE_TAR_DIRECTORY_EXISTS_AS_FILE = 10057;
+    const ARCHIVE_TAR_FILE_IS_WRITE_PROTECTED = 10058;
+    const ARCHIVE_TAR_DIRECTORY_CAN_NOT_BE_CREATED = 10059;
+    const ARCHIVE_TAR_UNABLE_TO_OPEN_FILE_FOR_WRITING = 10060;
+    const ARCHIVE_TAR_FILE_SIZE_MISMATCH = 10061;
+    const ARCHIVE_TAR_INVALID_BLOCK_SIZE = 10062;
+    const ARCHIVE_TAR_CHECKSUM_NOT_VALID = 10063;
+    const ARCHIVE_TAR_FILE_NAME_CONTAINS_DIRECTORY_TRAVERSAL = 10064;
+
+    // Next error code: 10053
 
     /**
      * List of constants defined in this class.
@@ -92,14 +107,15 @@ class Oxygen_Exception extends Exception
      */
     private $previousException;
 
-    public function __construct($code, $message = null, array $context = array(), Exception $previous = null)
+    public function __construct($code, array $context = array(), Exception $previous = null)
     {
-        $this->errorName = $this->getTypeForCode($code);
-        $this->context   = $context;
+        $context['lastError'] = error_get_last();
+        $this->errorName      = $this->getTypeForCode($code);
+        $this->context        = $context;
 
-        if ($message === null) {
-            $message = sprintf('Error [%d]: %s', $code, $this->errorName);
-        }
+        var_dump($context);
+
+        $message = sprintf('Error [%d]: %s', $code, $this->errorName);
 
         $this->previousException = $previous;
         parent::__construct($message, $code);

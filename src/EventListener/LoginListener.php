@@ -145,7 +145,7 @@ class Oxygen_EventListener_LoginListener
         }
 
         if ($user === null) {
-            throw new Oxygen_Exception(Oxygen_Exception::AUTO_LOGIN_CAN_NOT_FIND_USER, null, array(
+            throw new Oxygen_Exception(Oxygen_Exception::AUTO_LOGIN_CAN_NOT_FIND_USER, array(
                 'username' => $username,
             ));
         }

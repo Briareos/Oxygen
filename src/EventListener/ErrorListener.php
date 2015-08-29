@@ -109,7 +109,7 @@ class Oxygen_EventListener_ErrorListener
             return;
         }
 
-        $exception = new Oxygen_Exception(Oxygen_Exception::FATAL_ERROR, null, $lastError);
+        $exception = new Oxygen_Exception(Oxygen_Exception::FATAL_ERROR, $lastError);
 
         $response = new Oxygen_Http_JsonResponse(array(
             'oxygenException' => $this->getExceptionData($exception, $this->request->isAuthenticated()),

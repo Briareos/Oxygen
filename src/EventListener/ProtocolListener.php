@@ -124,7 +124,7 @@ class Oxygen_EventListener_ProtocolListener
         $currentBaseUrlSlug  = Oxygen_Util::getUrlSlug($this->baseUrl);
 
         if ($providedBaseUrlSlug !== $currentBaseUrlSlug) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_SLUG_MISMATCHES, null, array(
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_SLUG_MISMATCHES, array(
                 'providedBaseUrl'     => $data->baseUrl,
                 'providedBaseUrlSlug' => $providedBaseUrlSlug,
                 'currentBaseUrl'      => $this->baseUrl,
