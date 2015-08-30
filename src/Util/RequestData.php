@@ -23,7 +23,7 @@ final class Oxygen_Util_RequestData
      *
      * @var string
      */
-    public $username;
+    public $userName;
 
     /**
      * @var string
@@ -59,7 +59,6 @@ final class Oxygen_Util_RequestData
      * @var string
      */
     public $actionParameters;
-
     /**
      * @var string
      */

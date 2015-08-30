@@ -14,13 +14,13 @@ class Oxygen_Drupal_UserManager
     }
 
     /**
-     * @param string $username
+     * @param string $name
      *
      * @return stdClass|null
      */
-    public function findUserByUsername($username)
+    public function findUserByName($name)
     {
-        $user = user_load_by_name($username);
+        $user = user_load_by_name($name);
         return $user ? $user : null;
     }
 }

@@ -18,6 +18,11 @@ class Oxygen_EventListener_ErrorListener
     private $request;
 
     /**
+     * @var string
+     */
+    private $responseId;
+
+    /**
      * @var array
      */
     private $errorLog = array();
@@ -36,6 +41,8 @@ class Oxygen_EventListener_ErrorListener
     {
         $this->request = $event->getRequest();
 
+        $this->responseId = str_rot13($event->getRequestData()->oxygenRequestId);
+
         set_error_handler(array($this, 'handleError'));
         register_shutdown_function(array($this, 'handleFatalError'));
 
@@ -50,8 +57,9 @@ class Oxygen_EventListener_ErrorListener
 
 
         $response = new Oxygen_Http_JsonResponse(array(
-            'oxygenException' => $exceptionData,
-            'errorLog'        => $this->errorLog,
+            'oxygenResponseId' => $this->responseId,
+            'exception'        => $exceptionData,
+            'errorLog'         => $this->errorLog,
         ));
 
         $event->setResponse($response);
@@ -116,8 +124,9 @@ class Oxygen_EventListener_ErrorListener
         $exception = new Oxygen_Exception(Oxygen_Exception::FATAL_ERROR, $lastError);
 
         $response = new Oxygen_Http_JsonResponse(array(
-            'oxygenException' => $this->getExceptionData($exception, $this->request->isAuthenticated()),
-            'errorLog'        => $this->errorLog,
+            'oxygenResponseId' => $this->responseId,
+            'exception'        => $this->getExceptionData($exception, $this->request->isAuthenticated()),
+            'errorLog'         => $this->errorLog,
         ));
 
         $response->send();

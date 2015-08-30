@@ -10,6 +10,6 @@ class Oxygen_Http_JsonResponse extends Oxygen_Http_Response
 
     public function getContentAsString()
     {
-        return "\n".json_encode($this->content);
+        return "\n".json_encode($this->content)."\n";
     }
 }

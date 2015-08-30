@@ -44,12 +44,12 @@ class Oxygen_EventListener_ProtocolListener
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_PUBLIC_KEY_NOT_VALID);
         }
 
-        if (!isset($data->username)) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_PROVIDED);
+        if (!isset($data->userName)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_NAME_NOT_PROVIDED);
         }
 
-        if (!is_string($data->username)) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_VALID);
+        if (!is_string($data->userName)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_NAME_NOT_VALID);
         }
 
         if (empty($data->signature)) {

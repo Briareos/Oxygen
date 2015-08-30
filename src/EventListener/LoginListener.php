@@ -92,12 +92,12 @@ class Oxygen_EventListener_LoginListener
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_SIGNATURE_NOT_VALID);
         }
 
-        if (!isset($params['username'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_PROVIDED);
+        if (!isset($params['userName'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_NAME_NOT_PROVIDED);
         }
 
-        if (!is_string($params['username'])) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USERNAME_NOT_VALID);
+        if (!is_string($params['userName'])) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_USER_NAME_NOT_VALID);
         }
 
         if (!isset($params['userUid'])) {
@@ -115,13 +115,13 @@ class Oxygen_EventListener_LoginListener
             throw new Oxygen_Exception(Oxygen_Exception::PUBLIC_KEY_MISSING);
         }
 
-        if (!$this->rsaVerifier->verify($publicKey, sprintf('%s|%d|%s|%s', $params['oxygenRequestId'], $params['requestExpiresAt'], $params['userUid'], $params['username']), $params['signature'])) {
+        if (!$this->rsaVerifier->verify($publicKey, sprintf('%s|%d|%s|%s', $params['oxygenRequestId'], $params['requestExpiresAt'], $params['userUid'], $params['userName']), $params['signature'])) {
             throw new Oxygen_Exception(Oxygen_Exception::HANDSHAKE_VERIFY_FAILED);
         }
 
         $this->nonceManager->useNonce($params['oxygenRequestId'], $params['requestExpiresAt']);
 
-        $closure = new Oxygen_Util_Closure(array($this, 'loginUser'), $params['userUid'], $params['username']);
+        $closure = new Oxygen_Util_Closure(array($this, 'loginUser'), $params['userUid'], $params['userName']);
 
         $event->setDeferredResponse(new Oxygen_Util_HookedClosure('init', $closure->getCallable()));
     }
@@ -130,23 +130,23 @@ class Oxygen_EventListener_LoginListener
      * @internal
      *
      * @param string $userUid UID of the user on the management dashboard, not a Drupal's user.
-     * @param string $username
+     * @param string $name
      *
      * @return Oxygen_Http_RedirectResponse
      *
      * @throws Oxygen_Exception
      */
-    public function loginUser($userUid, $username)
+    public function loginUser($userUid, $name)
     {
-        if (strlen($username)) {
-            $user = $this->userManager->findUserByUsername($username);
+        if (strlen($name)) {
+            $user = $this->userManager->findUserByName($name);
         } else {
             $user = $this->userManager->findUserById(1);
         }
 
         if ($user === null) {
             throw new Oxygen_Exception(Oxygen_Exception::AUTO_LOGIN_CAN_NOT_FIND_USER, array(
-                'username' => $username,
+                'name' => $name,
             ));
         }
 
