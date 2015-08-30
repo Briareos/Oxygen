@@ -41,7 +41,8 @@ class Oxygen_EventListener_ErrorListener
     {
         $this->request = $event->getRequest();
 
-        $this->responseId = str_rot13($event->getRequestData()->oxygenRequestId);
+        // Kind of like str_rot18 that includes support for numbers.
+        $this->responseId = strtr($event->getRequestData()->oxygenRequestId,'abcdefghijklmnopqrstuvwxyz0123456789','stuvwxyz0123456789abcdefghijklmnopqr');
 
         set_error_handler(array($this, 'handleError'));
         register_shutdown_function(array($this, 'handleFatalError'));
