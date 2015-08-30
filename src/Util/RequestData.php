@@ -48,7 +48,7 @@ final class Oxygen_Util_RequestData
     /**
      * @var string
      */
-    public $requiredVersion;
+    public $version;
 
     /**
      * @var string

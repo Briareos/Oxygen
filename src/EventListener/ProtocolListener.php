@@ -1,7 +1,7 @@
 <?php
 
 /**
- * Validates the request parameters and basic validation constraints.
+ * Validates the request parameters and checks some basic validation constraints.
  */
 class Oxygen_EventListener_ProtocolListener
 {
@@ -28,11 +28,23 @@ class Oxygen_EventListener_ProtocolListener
     {
         $data = $event->getRequestData();
 
+        if (empty($data->version)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_VERSION_NOT_PROVIDED);
+        }
+
+        if (!is_string($data->version) || !preg_match('{^\d+\.\d+$}', $data->version)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_VERSION_NOT_VALID);
+        }
+
+        if (version_compare($data->version, $this->version, '>')) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_VERSION_TOO_LOW);
+        }
+
         if (empty($data->oxygenRequestId)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_PROVIDED);
         }
 
-        if (!is_string($data->oxygenRequestId) || !strlen($data->oxygenRequestId)) {
+        if (!is_string($data->oxygenRequestId) || !preg_match('{^[a-z0-9]{32}$}', $data->oxygenRequestId)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_VALID);
         }
 
@@ -82,18 +94,6 @@ class Oxygen_EventListener_ProtocolListener
 
         if (!is_int($data->requestExpiresAt)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_EXPIRATION_NOT_VALID);
-        }
-
-        if (empty($data->requiredVersion)) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUIRED_VERSION_NOT_PROVIDED);
-        }
-
-        if (!is_string($data->requiredVersion) || !preg_match('{^\d+\.\d+$}', $data->requiredVersion)) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUIRED_VERSION_NOT_VALID);
-        }
-
-        if (version_compare($data->requiredVersion, $this->version, '>')) {
-            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_VERSION_TOO_LOW);
         }
 
         if (empty($data->actionName)) {
