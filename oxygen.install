@@ -6,10 +6,10 @@
 function oxygen_schema()
 {
     $schema['oxygen_nonce']   = array(
-        'description' => 'Stores cryptographic nonce used by the Oxygen module to prevent man-in-the-middle attack.',
+        'description' => 'Stores cryptographic nonce used by the Oxygen module to prevent man-in-the-middle and reply attacks.',
         'fields'      => array(
             'nonce'   => array(
-                'description' => 'The nonce value.',
+                'description' => 'Primary Key: The nonce value.',
                 'type'        => 'varchar',
                 'length'      => 32,
                 'not null'    => true,
@@ -26,7 +26,7 @@ function oxygen_schema()
         'description' => 'Stores sessions initiated by the Oxygen module, so that they can be destroyed when needed.',
         'fields'      => array(
             'sid' => array(
-                'description' => 'The session ID.',
+                'description' => 'Primary Key: The session ID. References session ID in the sessions table.',
                 'type'        => 'varchar',
                 'length'      => 100,
                 'not null'    => true,
