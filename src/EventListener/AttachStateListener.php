@@ -57,7 +57,7 @@ class Oxygen_EventListener_AttachStateListener
 
         $this->populateSiteState($state, $request);
         $this->populateServerState($state, $request);
-        $this->populateSystemState($params, $state);
+        $this->populateExtensionsState($params, $state);
 
         return $state;
     }
@@ -65,16 +65,17 @@ class Oxygen_EventListener_AttachStateListener
     private function populateSiteState(&$state, Oxygen_Http_Request $request)
     {
         // See how $site_key gets generated in _update_process_fetch_task() for statistical purposes.
-        $state['siteKey']           = strtr(base64_encode(hash_hmac('sha256', (string)$this->context->getGlobal('base_url'), (string)$this->state->get('drupal_private_key'), true)), array('+' => '-', '/' => '_', '=' => ''));
-        $state['cronKey']           = (string)$this->state->get('cron_key');
-        $state['cronLastRunAt']     = (int)$this->state->get('cron_last');
-        $state['siteMail']          = (string)$this->state->get('site_mail');
-        $state['siteName']          = (string)$this->state->get('site_name');
-        $state['siteRoot']          = isset($request->server['SCRIPT_FILENAME']) ? Oxygen_Util::normalizePath(dirname($request->server['SCRIPT_FILENAME'])) : '';
-        $state['drupalRoot']        = Oxygen_Util::normalizePath($this->context->getConstant('DRUPAL_ROOT'));
-        $state['drupalVersion']     = $this->context->getConstant('VERSION');
-        $state['updateLastCheckAt'] = (int)$this->state->get('update_last_check');
-        $state['timezone']          = (string)$this->state->get('date_default_timezone');
+        $state['siteKey']            = strtr(base64_encode(hash_hmac('sha256', (string)$this->context->getGlobal('base_url'), (string)$this->state->get('drupal_private_key'), true)), array('+' => '-', '/' => '_', '=' => ''));
+        $state['cronKey']            = (string)$this->state->get('cron_key');
+        $state['cronLastRunAt']      = (int)$this->state->get('cron_last');
+        $state['siteMail']           = (string)$this->state->get('site_mail');
+        $state['siteName']           = (string)$this->state->get('site_name');
+        $state['siteRoot']           = isset($request->server['SCRIPT_FILENAME']) ? Oxygen_Util::normalizePath(dirname($request->server['SCRIPT_FILENAME'])) : '';
+        $state['drupalRoot']         = Oxygen_Util::normalizePath($this->context->getConstant('DRUPAL_ROOT'));
+        $state['drupalVersion']      = $this->context->getConstant('VERSION');
+        $state['drupalMajorVersion'] = (int)basename($this->context->getConstant('DRUPAL_CORE_COMPATIBILITY'), '.x');
+        $state['updateLastCheckAt']  = (int)$this->state->get('update_last_check');
+        $state['timezone']           = (string)$this->state->get('date_default_timezone');
     }
 
     private function populateServerState(&$state, Oxygen_Http_Request $request)
@@ -93,22 +94,22 @@ class Oxygen_EventListener_AttachStateListener
         $state['windows']               = DIRECTORY_SEPARATOR === '\\';
     }
 
-    private function populateSystemState($params, &$state)
+    private function populateExtensionsState($params, &$state)
     {
-        $systemChecksum = $this->getSystemChecksum();
+        $systemChecksum = $this->getExtensionChecksum();
 
-        if ($systemChecksum === null || $systemChecksum !== $params['systemChecksum']) {
+        if ($systemChecksum === null || $systemChecksum !== $params['extensionsChecksum']) {
             // The checksum could not be calculated, or it differs.
             $state += array(
-                'systemChecksum' => $systemChecksum,
-                'systemCacheHit' => false,
-                'systemData'     => $this->getSystemData(),
+                'extensionsChecksum' => $systemChecksum,
+                'extensionsCacheHit' => false,
+                'extensions'         => $this->getExtensions(),
             );
         } else {
             $state += array(
-                'systemChecksum' => $systemChecksum,
-                'systemCacheHit' => true,
-                'systemData'     => array(),
+                'extensionsChecksum' => $systemChecksum,
+                'extensionsCacheHit' => true,
+                'extensions'         => array(),
             );
         }
     }
@@ -119,7 +120,7 @@ class Oxygen_EventListener_AttachStateListener
      *
      * @return string|null 32-character checksum value or NULL if the checksum is not supported.
      */
-    private function getSystemChecksum()
+    private function getExtensionChecksum()
     {
         // There are multiple ways to check when the 'system' table was updated.
         if (_cache_get_object('cache_bootstrap') instanceof DrupalDatabaseCache) {
@@ -151,24 +152,40 @@ class Oxygen_EventListener_AttachStateListener
     }
 
     /**
-     * @return array The whole 'system' table.
+     * @return array
      */
-    private function getSystemData()
+    private function getExtensions()
     {
         // Select all columns; 'filename' is the primary key.
-        $query = 'SELECT filename, name, type, owner, status, bootstrap, schema_version, weight, info FROM {system} ORDER BY filename ASC';
+        $query = 'SELECT filename, name, type, owner, status, bootstrap, info FROM {system} ORDER BY filename ASC';
         $rows  = $this->connection->query($query)->fetchAllAssoc('filename');
 
+        $extensions = array();
+
         foreach ($rows as $row) {
-            $row->owner          = strlen($row->owner) ? $row->owner : null;
-            $row->status         = (bool)$row->status;
-            $row->bootstrap      = (bool)$row->bootstrap;
-            $row->schema_version = (int)$row->schema_version;
-            $row->weight         = (int)$row->weight;
-            $row->info           = unserialize($row->info);
+            $info = unserialize($row->info);
+
+            if ($info['hidden']) {
+                continue;
+            }
+            // See default values in _system_rebuild_module_data().
+            $extensions[] = [
+                'filename'     => $row->filename,
+                'type'         => $row->type,
+                'slug'         => $row->name,
+                'parent'       => strlen($row->owner) ? $row->owner : null,
+                'status'       => (bool)$row->status,
+                'name'         => $info['name'],
+                'description'  => $info['description'],
+                'package'      => $info['package'],
+                'version'      => $info['version'],
+                'required'     => empty($info['required']) ? false : true,
+                'dependencies' => empty($info['dependencies']) ? array() : $info['dependencies'],
+                'project'      => $info['project'],
+                // screenshot, version, php
+            ];
         }
 
-        // We must index by something in fetchAllAssoc, but return a 0-indexed array.
-        return array_values($rows);
+        return $extensions;
     }
 }
