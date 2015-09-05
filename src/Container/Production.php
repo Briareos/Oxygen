@@ -92,8 +92,17 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         );
         $dispatcher->addListener(Oxygen_Event_Events::MASTER_REQUEST, array($handshakeListener, 'onMasterRequest'), 9);
 
+        $appendStateListener = new Oxygen_Container_LazyService(
+            'Oxygen_EventListener_AttachStateListener',
+            array($this, 'getState'),
+            array($this, 'getContext'),
+            array($this, 'getConnection'),
+            array($this, 'getEnvironment')
+        );
+        $dispatcher->addListener(Oxygen_Event_Events::MASTER_RESPONSE, array($appendStateListener, 'onMasterResponse'));
+
         $actionDataListener = new Oxygen_Container_LazyService(
-            'Oxygen_eventListener_SetResponseListener'
+            'Oxygen_EventListener_SetResponseListener'
         );
         $dispatcher->addListener(Oxygen_Event_Events::ACTION_DATA, array($actionDataListener, 'onActionData'), -9);
 
@@ -142,13 +151,27 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
         return new Oxygen_Drupal_UserManager();
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function createSessionManager()
     {
         return new Oxygen_Drupal_SessionManager($this->getContext(), $this->getConnection());
     }
 
+    /**
+     * {@inheritdoc}
+     */
     protected function createContext()
     {
         return new Oxygen_Drupal_Context();
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function createEnvironment()
+    {
+        return new Oxygen_System_Environment();
     }
 }

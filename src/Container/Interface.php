@@ -63,4 +63,9 @@ interface Oxygen_Container_Interface
      * @return Oxygen_Drupal_Context
      */
     public function getContext();
+
+    /**
+     * @return Oxygen_System_Environment
+     */
+    public function getEnvironment();
 }

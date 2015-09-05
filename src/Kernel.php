@@ -87,7 +87,7 @@ class Oxygen_Kernel
     public function notifyResponse(Oxygen_Http_Request $request, $requestData, Oxygen_Http_Response $response)
     {
         try {
-            $responseEvent = new Oxygen_Event_MasterResponseEvent($request, $response);
+            $responseEvent = new Oxygen_Event_MasterResponseEvent($request, $requestData, $response);
             $this->container->getDispatcher()->dispatch(Oxygen_Event_Events::MASTER_RESPONSE, $responseEvent);
             return $responseEvent->getResponse();
         } catch (Exception $e) {

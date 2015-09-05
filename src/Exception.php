@@ -59,6 +59,8 @@ class Oxygen_Exception extends Exception
     const PROTOCOL_USER_NAME_NOT_VALID = 10048;
     const PROTOCOL_USER_UID_NOT_PROVIDED = 10050;
     const PROTOCOL_USER_UID_NOT_VALID = 10051;
+    const PROTOCOL_STATE_PARAMETERS_NOT_PROVIDED = 10077;
+    const PROTOCOL_STATE_PARAMETERS_NOT_VALID = 10078;
 
     const PUBLIC_KEY_MISSING = 10046;
 
@@ -92,7 +94,7 @@ class Oxygen_Exception extends Exception
     const PROJECT_MANAGER_PROJECT_ALREADY_INSTALLED = 10074;
     const PROJECT_MANAGER_FILE_SYSTEM_NOT_WRITABLE = 10075;
 
-    // Next error code: 10077
+    // Next error code: 10079
 
     /**
      * List of constants defined in this class.

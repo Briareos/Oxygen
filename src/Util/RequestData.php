@@ -59,10 +59,16 @@ final class Oxygen_Util_RequestData
      * @var string
      */
     public $actionParameters;
+
     /**
      * @var string
      */
     public $baseUrl;
+
+    /**
+     * @var array
+     */
+    public $stateParameters;
 
     private function __construct()
     {

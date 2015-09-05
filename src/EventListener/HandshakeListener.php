@@ -78,7 +78,7 @@ class Oxygen_EventListener_HandshakeListener
             return;
         }
 
-        $handshakeKey = @file_get_contents($this->modulePath.'/keys/'.$data->handshakeKey.'.key');
+        $handshakeKey = @file_get_contents($this->modulePath.'/keys/'.$data->handshakeKey.'.pub');
 
         if ($handshakeKey === false) {
             $lastError = error_get_last();

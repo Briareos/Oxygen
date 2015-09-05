@@ -120,6 +120,14 @@ class Oxygen_EventListener_ProtocolListener
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_BASE_URL_NOT_VALID);
         }
 
+        if (!isset($data->stateParameters)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_STATE_PARAMETERS_NOT_PROVIDED);
+        }
+
+        if (!is_array($data->stateParameters)) {
+            throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_STATE_PARAMETERS_NOT_VALID);
+        }
+
         $providedBaseUrlSlug = Oxygen_Util::getUrlSlug($data->baseUrl);
         $currentBaseUrlSlug  = Oxygen_Util::getUrlSlug($this->baseUrl);
 

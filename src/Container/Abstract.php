@@ -221,4 +221,21 @@ abstract class Oxygen_Container_Abstract implements Oxygen_Container_Interface
      * @return Oxygen_Drupal_Context
      */
     abstract protected function createContext();
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getEnvironment()
+    {
+        if (!isset($this->registry[__METHOD__])) {
+            $this->registry[__METHOD__] = $this->createEnvironment();
+        }
+
+        return $this->registry[__METHOD__];
+    }
+
+    /**
+     * @return Oxygen_System_Environment
+     */
+    abstract protected function createEnvironment();
 }
