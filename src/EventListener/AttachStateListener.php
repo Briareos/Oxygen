@@ -67,7 +67,7 @@ class Oxygen_EventListener_AttachStateListener
         // See how $site_key gets generated in _update_process_fetch_task() for statistical purposes.
         $state['siteKey']           = strtr(base64_encode(hash_hmac('sha256', (string)$this->context->getGlobal('base_url'), (string)$this->state->get('drupal_private_key'), true)), array('+' => '-', '/' => '_', '=' => ''));
         $state['cronKey']           = (string)$this->state->get('cron_key');
-        $state['cronLastRunAt']     = (string)$this->state->get('cron_last');
+        $state['cronLastRunAt']     = (int)$this->state->get('cron_last');
         $state['siteMail']          = (string)$this->state->get('site_mail');
         $state['siteName']          = (string)$this->state->get('site_name');
         $state['siteRoot']          = isset($request->server['SCRIPT_FILENAME']) ? Oxygen_Util::normalizePath(dirname($request->server['SCRIPT_FILENAME'])) : '';
