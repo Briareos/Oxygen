@@ -174,7 +174,7 @@ class Oxygen_EventListener_AttachStateListener
                 'type'         => $row->type,
                 'slug'         => $row->name,
                 'parent'       => strlen($row->owner) ? $row->owner : null,
-                'status'       => (bool)$row->status,
+                'active'       => (bool)$row->status,
                 'name'         => $info['name'],
                 'description'  => $info['description'],
                 'package'      => $info['package'],
