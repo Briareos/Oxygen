@@ -42,7 +42,7 @@ class Oxygen_EventListener_ErrorListener
         $this->request = $event->getRequest();
 
         // Kind of like str_rot18 that includes support for numbers.
-        $this->responseId = strtr($event->getRequestData()->oxygenRequestId,'abcdefghijklmnopqrstuvwxyz0123456789','stuvwxyz0123456789abcdefghijklmnopqr');
+        $this->responseId = strtr($event->getRequestData()->oxygenRequestId, 'abcdefghijklmnopqrstuvwxyz0123456789', 'stuvwxyz0123456789abcdefghijklmnopqr');
 
         set_error_handler(array($this, 'handleError'));
         register_shutdown_function(array($this, 'handleFatalError'));
@@ -98,15 +98,19 @@ class Oxygen_EventListener_ErrorListener
     /**
      * @internal
      */
-    public function handleError(/** @noinspection PhpDocSignatureInspection */
-        $code, $message, $file = 'Unknown', $line = 0, $context = array())
+    public function handleError(
+        /** @noinspection PhpDocSignatureInspection */
+        $code, $message, $file = 'Unknown', $line = 0,
+        /** @noinspection PhpUnusedParameterInspection */
+        $context = array())
     {
+        // The context can be recursive, so don't save it.
+
         $this->errorLog[] = array(
             'code'    => $code,
             'message' => $message,
             'file'    => $file,
             'line'    => $line,
-            'context' => $context,
         );
     }
 

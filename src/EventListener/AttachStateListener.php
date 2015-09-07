@@ -58,6 +58,7 @@ class Oxygen_EventListener_AttachStateListener
         $this->populateSiteState($state, $request);
         $this->populateServerState($state, $request);
         $this->populateExtensionsState($params, $state);
+        $this->populateUpdatesState($state);
 
         return $state;
     }
@@ -74,7 +75,6 @@ class Oxygen_EventListener_AttachStateListener
         $state['drupalRoot']         = Oxygen_Util::normalizePath($this->context->getConstant('DRUPAL_ROOT'));
         $state['drupalVersion']      = $this->context->getConstant('VERSION');
         $state['drupalMajorVersion'] = (int)basename($this->context->getConstant('DRUPAL_CORE_COMPATIBILITY'), '.x');
-        $state['updateLastCheckAt']  = (int)$this->state->get('update_last_check');
         $state['timezone']           = (string)$this->state->get('date_default_timezone');
     }
 
@@ -112,6 +112,12 @@ class Oxygen_EventListener_AttachStateListener
                 'extensions'         => array(),
             );
         }
+    }
+
+    private function populateUpdatesState(&$state)
+    {
+        $state['updatesLastCheckAt'] = (int)$this->state->get('update_last_check');
+        $state['updates']            = $this->getUpdates();
     }
 
     /**
@@ -169,12 +175,12 @@ class Oxygen_EventListener_AttachStateListener
                 continue;
             }
             // See default values in _system_rebuild_module_data().
-            $extensions[] = [
+            $extensions[$row->name] = [
                 'filename'     => $row->filename,
                 'type'         => $row->type,
                 'slug'         => $row->name,
                 'parent'       => strlen($row->owner) ? $row->owner : null,
-                'active'       => (bool)$row->status,
+                'enabled'      => (bool)$row->status,
                 'name'         => $info['name'],
                 'description'  => $info['description'],
                 'package'      => $info['package'],
@@ -187,5 +193,67 @@ class Oxygen_EventListener_AttachStateListener
         }
 
         return $extensions;
+    }
+
+    private static $statusMap = array(
+        // UPDATE_NOT_SECURE
+        1  => 'not_secure',
+        // UPDATE_REVOKED
+        2  => 'revoked',
+        // UPDATE_NOT_SUPPORTED
+        3  => 'not_supported',
+        // UPDATE_NOT_CURRENT
+        4  => 'not_current',
+        // UPDATE_CURRENT
+        5  => 'current',
+        // UPDATE_NOT_CHECKED
+        -1 => 'not_checked',
+        // UPDATE_UNKNOWN
+        -2 => 'unknown',
+        // UPDATE_NOT_FETCHED
+        -3 => 'not_fetched',
+        // UPDATE_FETCH_PENDING
+        -4 => 'fetch_pending',
+    );
+
+    /**
+     * @return array
+     *
+     * @see _update_process_info_list()
+     */
+    public function getUpdates()
+    {
+        $available = update_get_available(true);
+
+        if (!$available) {
+            return array();
+        }
+        module_load_include('inc', 'update', 'update.compare');
+
+        $updates = array();
+
+        $data = update_calculate_project_data($available);
+        foreach ($data as $slug => $update) {
+            // Disabled modules have a type of 'module-disabled'.
+            $type           = explode('-', $update['project_type'], 2);
+            $type           = $type[0];
+            $updates[$slug] = array(
+                'slug'                    => $slug,
+                'name'                    => $update['title'],
+                'type'                    => $type,
+                'project'                 => $update['info']['project'],
+                'package'                 => $update['info']['package'],
+                'existingVersion'         => $update['info']['version'],
+                'recommendedVersion'      => $update['recommended'],
+                'recommendedDownloadLink' => $update['releases'][$update['recommended']]['download_link'],
+                'status'                  => self::$statusMap[$update['status']],
+                'includes'                => empty($update['includes']) ? array() : array_keys($update['includes']),
+                'enabled'                 => (bool)$update['status'],
+                'baseThemes'              => array_keys($update['base_themes']),
+                'subThemes'               => array_keys($update['sub_themes']),
+            );
+        }
+
+        return $updates;
     }
 }

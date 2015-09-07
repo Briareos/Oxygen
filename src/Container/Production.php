@@ -29,7 +29,9 @@ class Oxygen_Container_Production extends Oxygen_Container_Abstract
     {
         $registry = new Oxygen_Action_Registry();
 
-        $registry->setDefinition('site.ping', new Oxygen_Action_Definition('Oxygen_Action_SitePingAction', 'execute'));
+        $registry->setDefinition('site.ping', new Oxygen_Action_Definition('Oxygen_Action_SitePingAction', 'execute', array(
+            'hook_name' => 'init',
+        )));
         $registry->setDefinition('module.disable', new Oxygen_Action_Definition('Oxygen_Action_ModuleDisableAction', 'execute', array(
             'hook_name' => 'init',
         )));
