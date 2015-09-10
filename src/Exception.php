@@ -23,7 +23,7 @@ class Oxygen_Exception extends Exception
     const RSA_KEY_ENCODED_SIZE_INVALID = 10014;
 
     const ACTION_NOT_FOUND = 10015;
-    const ACTION_ARGUMENT_EMPTY = 10024;
+    const ACTION_ARGUMENT_NOT_PROVIDED = 10024;
 
     const NONCE_EXPIRED = 10017;
     const NONCE_ALREADY_USED = 10018;

@@ -235,8 +235,11 @@ class Oxygen_EventListener_AttachStateListener
         $data = update_calculate_project_data($available);
         foreach ($data as $slug => $update) {
             // Disabled modules have a type of 'module-disabled'.
-            $type           = explode('-', $update['project_type'], 2);
-            $type           = $type[0];
+            $type = explode('-', $update['project_type'], 2);
+            $type = $type[0];
+            if ($update['recommended'] === $update['existing_version']) {
+                continue;
+            }
             $updates[$slug] = array(
                 'slug'                    => $slug,
                 'name'                    => $update['title'],

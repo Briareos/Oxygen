@@ -73,7 +73,7 @@ class Oxygen_ActionKernel
                 $arguments[] = $actionParameters[$parameter->getName()];
             } else {
                 if (!$parameter->isOptional()) {
-                    throw new Oxygen_Exception(Oxygen_Exception::ACTION_ARGUMENT_EMPTY);
+                    throw new Oxygen_Exception(Oxygen_Exception::ACTION_ARGUMENT_NOT_PROVIDED);
                 }
                 $arguments[] = $parameter->getDefaultValue();
             }

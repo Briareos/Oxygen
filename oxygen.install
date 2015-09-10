@@ -31,7 +31,7 @@ function oxygen_schema()
                 'length'      => 100,
                 'not null'    => true,
             ),
-            'uid'   => array(
+            'uid' => array(
                 'description' => 'UID of the user that initiated the session from the management dashboard. This is not user UID used by Drupal.',
                 'type'        => 'varchar',
                 'length'      => 11,
@@ -64,4 +64,9 @@ function oxygen_install()
 function oxygen_uninstall()
 {
     variable_del('oxygen_public_key');
+}
+
+function oxygen_update_7002()
+{
+
 }

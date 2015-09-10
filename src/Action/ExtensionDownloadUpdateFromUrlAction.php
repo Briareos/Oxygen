@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Action_ModuleUninstallAction implements Oxygen_Container_ServiceLocatorAware
+class Oxygen_Action_ExtensionDownloadUpdateFromUrlAction implements Oxygen_Container_ServiceLocatorAware
 {
     /**
      * @var Oxygen_Drupal_ExtensionManager
@@ -23,12 +23,12 @@ class Oxygen_Action_ModuleUninstallAction implements Oxygen_Container_ServiceLoc
         return new self($container->getExtensionManager());
     }
 
-    public function execute(array $modules, $uninstallDependents = true)
+    public function execute($extension, $url)
     {
-        $success = $this->projectManager->uninstallModule($modules, $uninstallDependents);
+        $context = $this->projectManager->downloadExtensionUpdateFromUrl($extension, $url);
 
         return array(
-            'success' => $success,
+            'context' => $context,
         );
     }
 }
