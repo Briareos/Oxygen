@@ -163,7 +163,7 @@ class Oxygen_EventListener_AttachStateListener
     private function getExtensions()
     {
         // Select all columns; 'filename' is the primary key.
-        $query = 'SELECT filename, name, type, owner, status, bootstrap, info FROM {system} ORDER BY filename ASC';
+        $query = "SELECT filename, name, type, owner, status, bootstrap, info FROM {system} WHERE type IN ('module', 'theme') ORDER BY filename ASC";
         $rows  = $this->connection->query($query)->fetchAllAssoc('filename');
 
         $extensions = array();
