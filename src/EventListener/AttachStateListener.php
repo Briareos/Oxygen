@@ -237,7 +237,7 @@ class Oxygen_EventListener_AttachStateListener
             // Disabled modules have a type of 'module-disabled'.
             $type = explode('-', $update['project_type'], 2);
             $type = $type[0];
-            if ($update['recommended'] === $update['existing_version']) {
+            if ($update['recommended'] === $update['existing_version'] || empty($update['recommended'])) {
                 continue;
             }
             $updates[$slug] = array(
