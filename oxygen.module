@@ -1,12 +1,12 @@
 <?php
 
-require_once dirname(__FILE__).'/autoload.php';
-
 /**
  * Implements hook_boot().
  */
 function oxygen_boot()
 {
+    require_once dirname(__FILE__).'/autoload.php';
+
     $kernel   = new Oxygen_Kernel(oxygen_container());
     $request  = Oxygen_Http_Request::createFromGlobals();
     $response = $kernel->handle($request);
@@ -24,6 +24,34 @@ function oxygen_boot()
         $closure = new Oxygen_Util_Closure('oxygen_send_response', $response->getCallable());
         oxygen_queue_push($response->getHookName(), $closure->getCallable());
     }
+}
+
+/**
+ * Implements hook_menu().
+ */
+function oxygen_menu()
+{
+    $items['admin/config/oxygen']            = array(
+        'title'            => 'Oxygen',
+        'description'      => 'Oxygen module for website management.',
+        'position'         => 'right',
+        'weight'           => -15,
+        'page callback'    => 'system_admin_menu_block_page',
+        'access arguments' => array('administer site configuration'),
+        'file'             => 'system.admin.inc',
+        'file path'        => drupal_get_path('module', 'system'),
+    );
+    $items['admin/config/oxygen/disconnect'] = array(
+        'title'            => 'Disconnect the Oxygen module',
+        'description'      => 'Disconnect the Oxygen module from all dashboards and disable remote management.',
+        'page callback'    => 'drupal_get_form',
+        'page arguments'   => array('oxygen_admin_disconnect',),
+        'access arguments' => array('administer site configuration'),
+        'type'             => MENU_NORMAL_ITEM,
+        'file'             => 'oxygen.admin.inc',
+    );
+
+    return $items;
 }
 
 /**

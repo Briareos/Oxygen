@@ -30,6 +30,6 @@ class Oxygen_Security_Nonce_NonceManager implements Oxygen_Security_Nonce_NonceM
             throw new Oxygen_Exception(Oxygen_Exception::NONCE_ALREADY_USED);
         }
 
-        $this->connection->query('INSERT INTO {oxygen_nonce} SET nonce = :nonce, expires = :expires', array(':nonce' => $nonce, ':expires' => $expiresAt));
+        $this->connection->query('INSERT INTO {oxygen_nonce} (nonce, expires) VALUES (:nonce, :expires)', array(':nonce' => $nonce, ':expires' => $expiresAt));
     }
 }
