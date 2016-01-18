@@ -44,7 +44,7 @@ class Oxygen_EventListener_ProtocolListener
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_PROVIDED);
         }
 
-        if (!is_string($data->oxygenRequestId) || !preg_match('{^[a-z0-9]{32}$}', $data->oxygenRequestId)) {
+        if (!is_string($data->oxygenRequestId) || !preg_match('{^([0-9a-f]{8})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{4})-([0-9a-f]{12})$}', $data->oxygenRequestId)) {
             throw new Oxygen_Exception(Oxygen_Exception::PROTOCOL_REQUEST_ID_NOT_VALID);
         }
 

@@ -30,7 +30,7 @@ class Oxygen_EventListener_ErrorListener
     private static $fatalErrors = array(E_ERROR, E_PARSE, E_CORE_ERROR, E_COMPILE_ERROR, E_USER_ERROR);
 
     /**
-     * @param int $reservedMemorySize
+     * @param int $reservedMemorySize In kilobytes.
      */
     public function __construct($reservedMemorySize)
     {
@@ -41,9 +41,10 @@ class Oxygen_EventListener_ErrorListener
     {
         $this->request = $event->getRequest();
 
-        // Kind of like str_rot18 that includes support for numbers.
-        $this->responseId = strtr($event->getRequestData()->oxygenRequestId, 'abcdefghijklmnopqrstuvwxyz0123456789', 'stuvwxyz0123456789abcdefghijklmnopqr');
+        // Kind of like str_rot8, for hexadecimal strings.
+        $this->responseId = strtr($event->getRequestData()->oxygenRequestId, 'abcdef0123456789', '23456789abcdef01');
 
+        set_exception_handler(array($this, 'handleException'));
         set_error_handler(array($this, 'handleError'));
         register_shutdown_function(array($this, 'handleFatalError'));
 
@@ -52,10 +53,7 @@ class Oxygen_EventListener_ErrorListener
 
     public function onException(Oxygen_Event_ExceptionEvent $event)
     {
-        $exception = $event->getException();
-
-        $exceptionData = $this->getExceptionData($exception, $event->getRequest()->isAuthenticated());
-
+        $exceptionData = $this->getExceptionData($event->getException());
 
         $response = new Oxygen_Http_JsonResponse(array(
             'oxygenResponseId' => $this->responseId,
@@ -66,30 +64,49 @@ class Oxygen_EventListener_ErrorListener
         $event->setResponse($response);
     }
 
-    private function getExceptionData(Exception $exception, $verbose)
+    /**
+     * @param Exception|Throwable $exception
+     */
+    public function handleException($exception)
+    {
+        $exceptionData = $this->getExceptionData($exception);
+
+        $response = new Oxygen_Http_JsonResponse(array(
+            'oxygenResponseId' => $this->responseId,
+            'exception'        => $exceptionData,
+            'errorLog'         => $this->errorLog,
+        ));
+
+        $response->send();
+        exit;
+    }
+
+    /**
+     * @param Exception|Error $exception
+     *
+     * @return array
+     */
+    private function getExceptionData($exception)
     {
         $exceptionData = array(
-            'class'   => get_class($exception),
-            'message' => $exception->getMessage(),
-            'code'    => $exception->getCode(),
+            'class'       => get_class($exception),
+            'message'     => $exception->getMessage(),
+            'code'        => (int)$exception->getCode(),
+            'type'        => null,
+            'previous'    => null,
+            'file'        => $exception->getFile(),
+            'line'        => $exception->getLine(),
+            'traceString' => $exception->getTraceAsString(),
+            'context'     => array(),
         );
 
         if ($exception instanceof Oxygen_Exception) {
             $exceptionData['type'] = $exception->getType();
 
             if ($exception->getPreviousException()) {
-                $exceptionData['previous'] = $this->getExceptionData($exception->getPreviousException(), $verbose);
+                $exceptionData['previous'] = $this->getExceptionData($exception->getPreviousException());
             }
-
-            if ($verbose) {
-                $exceptionData['context'] = $exception->getContext();
-            }
-        }
-
-        if ($verbose) {
-            $exceptionData['file']        = $exception->getFile();
-            $exceptionData['line']        = $exception->getLine();
-            $exceptionData['traceString'] = $exception->getTraceAsString();
+            $exceptionData['context'] = $exception->getContext();
         }
 
         return $exceptionData;
@@ -97,17 +114,18 @@ class Oxygen_EventListener_ErrorListener
 
     /**
      * @internal
+     *
+     * @param int    $code
+     * @param string $message
+     * @param string $file
+     * @param int    $line
      */
-    public function handleError(
-        /** @noinspection PhpDocSignatureInspection */
-        $code, $message, $file = 'Unknown', $line = 0,
-        /** @noinspection PhpUnusedParameterInspection */
-        $context = array())
+    public function handleError($code, $message, $file = 'Unknown', $line = 0)
     {
-        // The context can be recursive, so don't save it.
-
+        // The context (fifth argument, array) can be recursive, so don't save it.
         $this->errorLog[] = array(
-            'code'    => $code,
+            'time'    => microtime(true),
+            'code'    => $this->codeToString($code),
             'message' => $message,
             'file'    => $file,
             'line'    => $line,
@@ -126,11 +144,9 @@ class Oxygen_EventListener_ErrorListener
             return;
         }
 
-        $exception = new Oxygen_Exception(Oxygen_Exception::FATAL_ERROR, $lastError);
-
         $response = new Oxygen_Http_JsonResponse(array(
             'oxygenResponseId' => $this->responseId,
-            'exception'        => $this->getExceptionData($exception, $this->request->isAuthenticated()),
+            'exception'        => $this->getFatalErrorData($lastError),
             'errorLog'         => $this->errorLog,
         ));
 
@@ -138,6 +154,31 @@ class Oxygen_EventListener_ErrorListener
         exit;
     }
 
+    /**
+     * @param array $error
+     *
+     * @return array
+     */
+    private function getFatalErrorData(array $error)
+    {
+        return array(
+            'class'       => 'Oxygen_Exception',
+            'message'     => $error['message'],
+            'file'        => $error['file'],
+            'line'        => $error['line'],
+            'context'     => array(),
+            'code'        => Oxygen_Exception::FATAL_ERROR,
+            'type'        => 'FATAL_ERROR',
+            'traceString' => '',
+            'previous'    => null,
+        );
+    }
+
+    /**
+     * @param string $code
+     *
+     * @return string
+     */
     private static function codeToString($code)
     {
         switch ($code) {

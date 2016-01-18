@@ -1,6 +1,6 @@
 <?php
 
-class Oxygen_Event_DelayedActionEvent
+class Oxygen_Event_DelayedActionEvent extends Oxygen_EventDispatcher_Event
 {
     /**
      * @var Oxygen_Http_Request

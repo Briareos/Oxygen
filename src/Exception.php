@@ -2,116 +2,118 @@
 
 class Oxygen_Exception extends Exception
 {
-    const GENERAL_ERROR = 10000;
+    const GENERAL_ERROR = 30000;
 
-    const FATAL_ERROR = 10076;
+    const FATAL_ERROR = 30076;
 
-    const RSA_KEY_OPENSSL_VERIFY_ERROR = 10001;
+    const RSA_KEY_OPENSSL_VERIFY_ERROR = 30001;
 
-    const RSA_KEY_PARSING_FAILED = 10002;
-    const RSA_KEY_MISSING_ASN1_SEQUENCE = 10003;
-    const RSA_KEY_MISSING_ASN1_OBJECT = 10004;
-    const RSA_KEY_MISSING_ASN1_BITSTRING = 10005;
-    const RSA_KEY_MISSING_ASN1_INTEGER = 10006;
-    const RSA_KEY_INVALID_LENGTH = 10007;
-    const RSA_KEY_UNSUPPORTED_ENCRYPTION = 10008;
-    const RSA_KEY_SIGNATURE_REPRESENTATIVE_OUT_OF_RANGE = 10009;
-    const RSA_KEY_SIGNATURE_INVALID = 10010;
-    const RSA_KEY_INVALID_FORMAT = 10011;
-    const RSA_KEY_SIGNATURE_SIZE_INVALID = 10012;
-    const RSA_KEY_MODULUS_SIZE_INVALID = 10013;
-    const RSA_KEY_ENCODED_SIZE_INVALID = 10014;
+    const RSA_KEY_PARSING_FAILED = 30002;
+    const RSA_KEY_MISSING_ASN1_SEQUENCE = 30003;
+    const RSA_KEY_MISSING_ASN1_OBJECT = 30004;
+    const RSA_KEY_MISSING_ASN1_BITSTRING = 30005;
+    const RSA_KEY_MISSING_ASN1_INTEGER = 30006;
+    const RSA_KEY_INVALID_LENGTH = 30007;
+    const RSA_KEY_UNSUPPORTED_ENCRYPTION = 30008;
+    const RSA_KEY_SIGNATURE_REPRESENTATIVE_OUT_OF_RANGE = 30009;
+    const RSA_KEY_SIGNATURE_INVALID = 30010;
+    const RSA_KEY_INVALID_FORMAT = 30011;
+    const RSA_KEY_SIGNATURE_SIZE_INVALID = 30012;
+    const RSA_KEY_MODULUS_SIZE_INVALID = 30013;
+    const RSA_KEY_ENCODED_SIZE_INVALID = 30014;
 
-    const ACTION_NOT_FOUND = 10015;
-    const ACTION_ARGUMENT_NOT_PROVIDED = 10024;
+    const ACTION_NOT_FOUND = 30015;
+    const ACTION_ARGUMENT_NOT_PROVIDED = 30024;
 
-    const NONCE_EXPIRED = 10017;
-    const NONCE_ALREADY_USED = 10018;
+    const NONCE_EXPIRED = 30017;
+    const NONCE_ALREADY_USED = 30018;
 
-    const HANDSHAKE_VERIFY_TEST_FAILED = 10022;
-    const HANDSHAKE_VERIFY_FAILED = 10023;
-    const HANDSHAKE_LOCAL_KEY_NOT_FOUND = 10042;
-    const HANDSHAKE_LOCAL_VERIFY_FAILED = 10043;
+    const HANDSHAKE_VERIFY_TEST_FAILED = 30022;
+    const HANDSHAKE_VERIFY_FAILED = 30023;
+    const HANDSHAKE_LOCAL_KEY_NOT_FOUND = 30042;
+    const HANDSHAKE_LOCAL_VERIFY_FAILED = 30043;
 
-    const PROTOCOL_PUBLIC_KEY_NOT_PROVIDED = 10019;
-    const PROTOCOL_PUBLIC_KEY_NOT_VALID = 10025;
-    const PROTOCOL_SIGNATURE_NOT_VALID = 10026;
-    const PROTOCOL_SIGNATURE_NOT_PROVIDED = 10020;
-    const PROTOCOL_EXPIRATION_NOT_PROVIDED = 10021;
-    const PROTOCOL_EXPIRATION_NOT_VALID = 10027;
-    const PROTOCOL_ACTION_NAME_NOT_PROVIDED = 10030;
-    const PROTOCOL_ACTION_NAME_NOT_VALID = 10031;
-    const PROTOCOL_ACTION_PARAMETERS_NOT_PROVIDED = 10032;
-    const PROTOCOL_ACTION_PARAMETERS_NOT_VALID = 10033;
-    const PROTOCOL_VERSION_NOT_PROVIDED = 10028;
-    const PROTOCOL_VERSION_NOT_VALID = 10029;
-    const PROTOCOL_VERSION_TOO_LOW = 10034;
-    const PROTOCOL_HANDSHAKE_KEY_NOT_PROVIDED = 10035;
-    const PROTOCOL_HANDSHAKE_KEY_NOT_VALID = 10036;
-    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_PROVIDED = 10037;
-    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_VALID = 10038;
-    const PROTOCOL_BASE_URL_NOT_PROVIDED = 10039;
-    const PROTOCOL_BASE_URL_NOT_VALID = 10040;
-    const PROTOCOL_BASE_URL_SLUG_MISMATCHES = 10041;
-    const PROTOCOL_REQUEST_ID_NOT_PROVIDED = 10044;
-    const PROTOCOL_REQUEST_ID_NOT_VALID = 10045;
-    const PROTOCOL_USER_NAME_NOT_PROVIDED = 10049;
-    const PROTOCOL_USER_NAME_NOT_VALID = 10048;
-    const PROTOCOL_USER_UID_NOT_PROVIDED = 10050;
-    const PROTOCOL_USER_UID_NOT_VALID = 10051;
-    const PROTOCOL_STATE_PARAMETERS_NOT_PROVIDED = 10077;
-    const PROTOCOL_STATE_PARAMETERS_NOT_VALID = 10078;
+    const PROTOCOL_PUBLIC_KEY_NOT_PROVIDED = 30019;
+    const PROTOCOL_PUBLIC_KEY_NOT_VALID = 30025;
+    const PROTOCOL_SIGNATURE_NOT_VALID = 30026;
+    const PROTOCOL_SIGNATURE_NOT_PROVIDED = 30020;
+    const PROTOCOL_EXPIRATION_NOT_PROVIDED = 30021;
+    const PROTOCOL_EXPIRATION_NOT_VALID = 30027;
+    const PROTOCOL_ACTION_NAME_NOT_PROVIDED = 30030;
+    const PROTOCOL_ACTION_NAME_NOT_VALID = 30031;
+    const PROTOCOL_ACTION_PARAMETERS_NOT_PROVIDED = 30032;
+    const PROTOCOL_ACTION_PARAMETERS_NOT_VALID = 30033;
+    const PROTOCOL_VERSION_NOT_PROVIDED = 30028;
+    const PROTOCOL_VERSION_NOT_VALID = 30029;
+    const PROTOCOL_VERSION_TOO_LOW = 30034;
+    const PROTOCOL_HANDSHAKE_KEY_NOT_PROVIDED = 30035;
+    const PROTOCOL_HANDSHAKE_KEY_NOT_VALID = 30036;
+    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_PROVIDED = 30037;
+    const PROTOCOL_HANDSHAKE_SIGNATURE_NOT_VALID = 30038;
+    const PROTOCOL_BASE_URL_NOT_PROVIDED = 30039;
+    const PROTOCOL_BASE_URL_NOT_VALID = 30040;
+    const PROTOCOL_BASE_URL_SLUG_MISMATCHES = 30041;
+    const PROTOCOL_REQUEST_ID_NOT_PROVIDED = 30044;
+    const PROTOCOL_REQUEST_ID_NOT_VALID = 30045;
+    const PROTOCOL_USER_NAME_NOT_PROVIDED = 30049;
+    const PROTOCOL_USER_NAME_NOT_VALID = 30048;
+    const PROTOCOL_USER_UID_NOT_PROVIDED = 30050;
+    const PROTOCOL_USER_UID_NOT_VALID = 30051;
+    const PROTOCOL_STATE_PARAMETERS_NOT_PROVIDED = 30077;
+    const PROTOCOL_STATE_PARAMETERS_NOT_VALID = 30078;
 
-    const PUBLIC_KEY_MISSING = 10046;
+    const PUBLIC_KEY_MISSING = 30046;
 
-    const AUTO_LOGIN_CAN_NOT_FIND_USER = 10047;
+    const AUTO_LOGIN_CAN_NOT_FIND_USER = 30047;
 
-    const MULTIPART_ENCODING_NOT_SUPPORTED = 10052;
+    const MULTIPART_ENCODING_NOT_SUPPORTED = 30052;
 
-    const ARCHIVE_FILE_NOT_FOUND = 10053;
-    const ARCHIVE_TAR_ZLIB_EXTENSION_NOT_LOADED = 10054;
-    const ARCHIVE_TAR_DESTINATION_DOES_NOT_EXIST = 10055;
-    const ARCHIVE_TAR_FILE_EXISTS_AS_DIRECTORY = 10056;
-    const ARCHIVE_TAR_DIRECTORY_EXISTS_AS_FILE = 10057;
-    const ARCHIVE_TAR_FILE_IS_WRITE_PROTECTED = 10058;
-    const ARCHIVE_TAR_DIRECTORY_CAN_NOT_BE_CREATED = 10059;
-    const ARCHIVE_TAR_UNABLE_TO_OPEN_FILE_FOR_WRITING = 10060;
-    const ARCHIVE_TAR_FILE_SIZE_MISMATCH = 10061;
-    const ARCHIVE_TAR_INVALID_BLOCK_SIZE = 10062;
-    const ARCHIVE_TAR_CHECKSUM_NOT_VALID = 10063;
-    const ARCHIVE_TAR_FILE_NAME_CONTAINS_DIRECTORY_TRAVERSAL = 10064;
+    const ARCHIVE_FILE_NOT_FOUND = 30053;
+    const ARCHIVE_TAR_ZLIB_EXTENSION_NOT_LOADED = 30054;
+    const ARCHIVE_TAR_DESTINATION_DOES_NOT_EXIST = 30055;
+    const ARCHIVE_TAR_FILE_EXISTS_AS_DIRECTORY = 30056;
+    const ARCHIVE_TAR_DIRECTORY_EXISTS_AS_FILE = 30057;
+    const ARCHIVE_TAR_FILE_IS_WRITE_PROTECTED = 30058;
+    const ARCHIVE_TAR_DIRECTORY_CAN_NOT_BE_CREATED = 30059;
+    const ARCHIVE_TAR_UNABLE_TO_OPEN_FILE_FOR_WRITING = 30060;
+    const ARCHIVE_TAR_FILE_SIZE_MISMATCH = 30061;
+    const ARCHIVE_TAR_INVALID_BLOCK_SIZE = 30062;
+    const ARCHIVE_TAR_CHECKSUM_NOT_VALID = 30063;
+    const ARCHIVE_TAR_FILE_NAME_CONTAINS_DIRECTORY_TRAVERSAL = 30064;
 
-    const ARCHIVE_ZIP_EXTENSION_NOT_LOADED = 10065;
-    const ARCHIVE_ZIP_EXTENSION_ERROR = 10066;
+    const ARCHIVE_ZIP_EXTENSION_NOT_LOADED = 30065;
+    const ARCHIVE_ZIP_EXTENSION_ERROR = 30066;
 
-    const PROJECT_MANAGER_UNABLE_TO_RETRIEVE_DRUPAL_PROJECT = 10067;
-    const PROJECT_MANAGER_EXTRACT_FAILED = 10068;
-    const PROJECT_MANAGER_ARCHIVE_CONTAINS_NO_FILES = 10069;
-    const PROJECT_MANAGER_ARCHIVE_VERIFY_ERROR = 10070;
-    const PROJECT_MANAGER_CAN_NOT_FIND_APPROPRIATE_UPDATER = 10071;
-    const PROJECT_MANAGER_UNABLE_TO_PARSE_PROJECT_INFO = 10072;
-    const PROJECT_MANAGER_UNABLE_TO_DETERMINE_PROJECT_NAME = 10073;
-    const PROJECT_MANAGER_PROJECT_ALREADY_INSTALLED = 10074;
-    const PROJECT_MANAGER_FILE_SYSTEM_NOT_WRITABLE = 10075;
+    const PROJECT_MANAGER_UNABLE_TO_RETRIEVE_DRUPAL_PROJECT = 30067;
+    const PROJECT_MANAGER_EXTRACT_FAILED = 30068;
+    const PROJECT_MANAGER_ARCHIVE_CONTAINS_NO_FILES = 30069;
+    const PROJECT_MANAGER_ARCHIVE_VERIFY_ERROR = 30070;
+    const PROJECT_MANAGER_CAN_NOT_FIND_APPROPRIATE_UPDATER = 30071;
+    const PROJECT_MANAGER_UNABLE_TO_PARSE_PROJECT_INFO = 30072;
+    const PROJECT_MANAGER_UNABLE_TO_DETERMINE_PROJECT_NAME = 30073;
+    const PROJECT_MANAGER_PROJECT_ALREADY_INSTALLED = 30074;
+    const PROJECT_MANAGER_FILE_SYSTEM_NOT_WRITABLE = 30075;
 
-    // Next error code: 10079
+    // Next error code: 30079
 
     /**
      * List of constants defined in this class.
      *
      * @internal
      */
-    static $codes = array();
+    private static $codes = array();
 
     /**
      * One of the constants defined in this class.
+     *
+     * @string
      */
-    protected $errorName;
+    protected $type;
 
     /**
      * Optional exception context.
      *
-     * @var array|null
+     * @var array
      */
     protected $context;
 
@@ -122,14 +124,17 @@ class Oxygen_Exception extends Exception
      */
     private $previousException;
 
-    public function __construct($code, array $context = null, Exception $previous = null)
+    public function __construct($code, array $context = array(), Exception $previous = null)
     {
+        if ($previous instanceof self) {
+            throw new LogicException(sprintf('The previous exception must not be a subclass of %s.', __CLASS__));
+        }
+
         $context['lastError'] = error_get_last();
-        $this->errorName      = $this->getTypeForCode($code);
+        $this->type           = self::getTypeForCode($code);
         $this->context        = $context;
 
-
-        $message = sprintf('Error [%d]: %s', $code, $this->errorName);
+        $message = sprintf('Error [%d]: %s', $code, $this->type);
 
         $this->previousException = $previous;
         parent::__construct($message, $code);
@@ -140,9 +145,9 @@ class Oxygen_Exception extends Exception
         return $this->previousException;
     }
 
-    private function getTypeForCode($code)
+    private static function getTypeForCode($code)
     {
-        if (count(self::$codes) === 0) {
+        if (!self::$codes) {
             $reflectionClass = new ReflectionClass(__CLASS__);
             self::$codes     = array_flip($reflectionClass->getConstants());
         }
@@ -151,7 +156,7 @@ class Oxygen_Exception extends Exception
             return self::$codes[$code];
         }
 
-        return self::GENERAL_ERROR;
+        return self::$codes[self::GENERAL_ERROR];
     }
 
     /**
@@ -159,11 +164,11 @@ class Oxygen_Exception extends Exception
      */
     public function getType()
     {
-        return $this->errorName;
+        return $this->type;
     }
 
     /**
-     * @return array|null
+     * @return array
      */
     public function getContext()
     {

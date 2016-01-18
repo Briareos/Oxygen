@@ -54,7 +54,7 @@ class Oxygen_Http_Request
     /**
      * @var bool
      */
-    private $authenticated;
+    private $authenticated = false;
 
     /**
      * @param array       $query      The GET parameters.
@@ -157,6 +157,6 @@ class Oxygen_Http_Request
      */
     public function setAuthenticated($authenticated)
     {
-        $this->authenticated = $authenticated;
+        $this->authenticated = (bool)$authenticated;
     }
 }
